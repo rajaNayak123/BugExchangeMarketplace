@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🐞 Bug Exchange Marketplace for Developers
 
-## Getting Started
+A full-stack platform where developers can **post bugs with bounties** and other developers can **claim and fix them** for rewards. Think of it as a bug bounty platform, but for everyday dev issues.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Live Demo
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Coming Soon...
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧠 Problem
 
-## Learn More
+Developers often get stuck on tricky bugs that waste hours of productivity. Finding someone to help is either slow or expensive.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ✅ Solution
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+A collaborative bug-fixing marketplace where:
+- Developers post bugs with a bounty.
+- Other devs claim bugs and submit fixes.
+- Posters review submissions and release rewards.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧩 Key Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 🐛 Bug Posting
+- Title, description, stack trace, code snippet
+- GitHub repo link + optional screenshots/video
+- Tech stack tags (React, Node.js, etc.)
+- Bounty amount
+
+### 🧑‍💻 Claim & Submit Fix
+- Claim any unclaimed bug
+- Submit fix description + GitHub commit/PR link
+- Poster reviews and accepts/rejects
+
+### 🌟 Developer Reputation
+- Earn points for every accepted bug fix
+- Leaderboard to rank top devs
+- Public dev profile with stats
+
+### 💳 Payments (Simulated)
+- Bounty is marked as "held" until accepted
+- Stripe test-mode or dummy confirmation
+
+### 🔍 Search & Filter
+- Search by keyword or tags
+- Filter by bounty, status (open/claimed/fixed)
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend**:  
+- [Next.js (App Router)](https://nextjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [React Hook Form](https://react-hook-form.com/)
+- [Zod](https://zod.dev/)
+
+**Backend**:  
+- [Next.js API Routes] OR [Express Microservices]  
+- [MongoDB](https://www.mongodb.com/) + [Mongoose](https://mongoosejs.com/)  
+- [Stripe (Test mode)](https://stripe.com/) for payment simulation  
+- [NextAuth.js](https://next-auth.js.org/) for OAuth
+
+**Other Tools**:  
+- [Cloudinary](https://cloudinary.com/) – for screenshots/videos  
+- [GitHub](https://github.com/) – for bug fix links  
+- [Resend / Nodemailer](https://resend.com/) – for notifications (optional)
+
+---
+
+## 📁 Folder Structure (App Router)
+
