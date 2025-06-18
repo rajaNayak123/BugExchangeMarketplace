@@ -90,3 +90,58 @@ model Bug {
 
   @@map("bugs")
 }
+
+model Submission {
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  solution    String
+  status      SubmissionStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  bugId String @db.ObjectId
+  bug   Bug    @relation(fields: [bugId], references: [id], onDelete: Cascade)
+
+  submitterId String @db.ObjectId
+  submitter   User   @relation(fields: [submitterId], references: [id], onDelete: Cascade)
+
+  @@map("submissions")
+}
+
+model Payment {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?
+  amount            Float
+  status            PaymentStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  bugId String @db.ObjectId
+  bug   Bug    @relation(fields: [bugId], references: [id], onDelete: Cascade)
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+enum BugStatus {
+  OPEN
+  CLAIMED
+  RESOLVED
+  CLOSED
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
