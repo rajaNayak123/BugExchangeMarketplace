@@ -126,4 +126,22 @@ model Payment {
   @@map("payments")
 }
 
+enum BugStatus {
+  OPEN
+  CLAIMED
+  RESOLVED
+  CLOSED
+}
 
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
