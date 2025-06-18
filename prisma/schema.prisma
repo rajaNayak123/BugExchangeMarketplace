@@ -60,3 +60,33 @@ model User {
 
   @@map("users")
 }
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Bug {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  description  String
+  stackTrace   String?
+  repoSnippet  String?
+  bountyAmount Float
+  tags         String[]
+  status       BugStatus @default(OPEN)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  authorId String @db.ObjectId
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  submissions Submission[]
+  payments    Payment[]
+
+  @@map("bugs")
+}
