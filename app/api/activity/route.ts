@@ -50,7 +50,7 @@ export async function GET() {
     })
 
     // Format activities with proper typing
-    const bugActivities = recentBugs.map((bug) => ({
+    const bugActivities = recentBugs.map((bug:any) => ({
       id: `bug_${bug.id}`,
       type: "bug_posted",
       createdAt: bug.createdAt.toISOString(),
@@ -62,7 +62,7 @@ export async function GET() {
       },
     }))
 
-    const submissionActivities = recentSubmissions.map((submission) => ({
+    const submissionActivities = recentSubmissions.map((submission:any) => ({
       id: `submission_${submission.id}`,
       type: submission.status === "APPROVED" ? "submission_approved" : "submission_made",
       createdAt: submission.createdAt.toISOString(),
