@@ -68,7 +68,7 @@ export default function BugDetails({ bug }: BugDetailsProps) {
     try {
       const validatedData = submissionSchema.parse(submissionData);
 
-      const response = await fetch(`/api/bug/${bug.id}/submissions`, {
+      const response = await fetch(`/api/bugs/${bug.id}/submissions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validatedData),
@@ -94,7 +94,7 @@ export default function BugDetails({ bug }: BugDetailsProps) {
   const handleApproveSubmission = async (submissionId: string) => {
     try {
       const response = await fetch(
-        `/api/bug/${bug.id}/submissions/${submissionId}/approve`,
+        `/api/bugs/${bug.id}/submissions/${submissionId}/approve`,
         {
           method: "POST",
         }
@@ -115,7 +115,7 @@ export default function BugDetails({ bug }: BugDetailsProps) {
   const handleRejectSubmission = async (submissionId: string) => {
     try {
       const response = await fetch(
-        `/api/bug/${bug.id}/submissions/${submissionId}/reject`,
+        `/api/bugs/${bug.id}/submissions/${submissionId}/reject`,
         {
           method: "POST",
         }
