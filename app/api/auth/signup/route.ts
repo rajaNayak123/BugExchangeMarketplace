@@ -5,7 +5,7 @@ import { signUpSchema } from "@/lib/validations";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = req.json();
+    const body = await req.json();
     const { name, email, password } = signUpSchema.parse(body);
 
     // Check if user already exists
