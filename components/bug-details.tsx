@@ -12,40 +12,49 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IndianRupee, Code, AlertTriangle } from "lucide-react";
 import { submissionSchema } from "@/lib/validations";
 
-interface BugDetailsProps {
-  bug: {
-    id: string;
-    title: string;
-    description: string;
-    stackTrace?: string;
-    repoSnippet?: string;
-    bountyAmount: number;
-    tags: string[];
-    status: string;
-    createdAt: string;
-    author: {
-      id: string;
-      name: string;
-      image?: string;
-      reputation: number;
-    };
-    submissions: Array<{
-      id: string;
-      description: string;
-      solution: string;
-      status: string;
-      createdAt: string;
-      submitter: {
-        id: string;
-        name: string;
-        image?: string;
-        reputation: number;
-      };
-    }>;
-  };
+// Define proper interfaces
+interface BugAuthor {
+  id: string;
+  name: string;
+  image?: string;
+  reputation: number;
 }
 
-export default function BugDetails({ bug }: BugDetailsProps) {
+interface BugSubmitter {
+  id: string;
+  name: string;
+  image?: string;
+  reputation: number;
+}
+
+interface BugSubmission {
+  id: string;
+  description: string;
+  solution: string;
+  status: string;
+  createdAt: string;
+  submitter: BugSubmitter;
+}
+
+interface Bug {
+  id: string;
+  title: string;
+  description: string;
+  stackTrace?: string;
+  repoSnippet?: string;
+  bountyAmount: number;
+  tags: string[];
+  status: string;
+  createdAt: string;
+  author: BugAuthor;
+  submissions: BugSubmission[];
+}
+
+interface BugDetailsProps {
+  bug: Bug;
+}
+
+export function BugDetails({ bug }: BugDetailsProps) {
   const { data: session } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSubmissionForm, setShowSubmissionForm] = useState(false);
@@ -63,14 +72,16 @@ export default function BugDetails({ bug }: BugDetailsProps) {
   const handleSubmission = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.user?.id) return;
-    setIsSubmitting(true);
 
+    setIsSubmitting(true);
     try {
       const validatedData = submissionSchema.parse(submissionData);
 
       const response = await fetch(`/api/bugs/${bug.id}/submissions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(validatedData),
       });
 
