@@ -10,6 +10,36 @@ import { Bug, IndianRupee, Trophy, User } from "lucide-react"
 import Link from "next/link"
 import { EmailTest } from "@/components/email-test"
 import { DashboardPaymentButton } from "@/components/dashboard-client"
+import { Prisma } from "@prisma/client"
+
+// Define types for better type safety
+type UserBug = Prisma.BugGetPayload<{
+  include: {
+    _count: {
+      select: { submissions: true };
+    };
+    payments: {
+      select: {
+        status: true;
+      };
+    };
+  };
+}>;
+
+type UserSubmission = Prisma.SubmissionGetPayload<{
+  include: {
+    bug: {
+      select: {
+        id: true;
+        title: true;
+        bountyAmount: true;
+        author: {
+          select: { name: true };
+        };
+      };
+    };
+  };
+}>;
 
 async function getUserData(userId: string) {
   const [user, userBugs, userSubmissions] = await Promise.all([
@@ -51,10 +81,10 @@ async function getUserData(userId: string) {
   const stats = {
     totalBugsPosted: userBugs.length,
     totalSubmissions: userSubmissions.length,
-    approvedSubmissions: userSubmissions.filter((s) => s.status === "APPROVED").length,
+    approvedSubmissions: userSubmissions.filter((s: UserSubmission) => s.status === "APPROVED").length,
     totalEarnings: userSubmissions
-      .filter((s) => s.status === "APPROVED")
-      .reduce((sum, s) => sum + s.bug.bountyAmount, 0),
+      .filter((s: UserSubmission) => s.status === "APPROVED")
+      .reduce((sum: number, s: UserSubmission) => sum + s.bug.bountyAmount, 0),
   }
 
   return { user, userBugs, userSubmissions, stats }
@@ -155,7 +185,7 @@ export default async function DashboardPage() {
             </Card>
           ) : (
             <div className="space-y-4">
-              {userBugs.map((bug) => {
+              {userBugs.map((bug: UserBug) => {
                 const isPaid = bug.payments.some((payment) => payment.status === "COMPLETED")
                 const needsPayment = bug.status === "OPEN" && !isPaid
 
@@ -215,7 +245,7 @@ export default async function DashboardPage() {
             </Card>
           ) : (
             <div className="space-y-4">
-              {userSubmissions.map((submission) => (
+              {userSubmissions.map((submission: UserSubmission) => (
                 <Card key={submission.id}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
