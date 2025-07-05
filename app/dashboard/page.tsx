@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Bug, IndianRupee, Trophy, User } from "lucide-react"
 import Link from "next/link"
 import { EmailTest } from "@/components/email-test"
-import { PaymentButton } from "@/components/payment-button"
+import { DashboardPaymentButton } from "@/components/dashboard-client"
 
 async function getUserData(userId: string) {
   const [user, userBugs, userSubmissions] = await Promise.all([
@@ -71,11 +71,6 @@ export default async function DashboardPage() {
 
   if (!user) {
     redirect("/auth/signin")
-  }
-
-  const handlePaymentSuccess = () => {
-    alert("Payment successful! Your bug bounty is now active.")
-    window.location.reload()
   }
 
   return (
@@ -196,9 +191,7 @@ export default async function DashboardPage() {
                           <span>{bug._count.submissions} submissions • </span>
                           <span>{new Date(bug.createdAt).toLocaleDateString()}</span>
                         </div>
-                        {needsPayment && (
-                          <PaymentButton bugId={bug.id} amount={bug.bountyAmount} onSuccess={handlePaymentSuccess} />
-                        )}
+                        {needsPayment && <DashboardPaymentButton bugId={bug.id} amount={bug.bountyAmount} />}
                       </div>
                     </CardContent>
                   </Card>
