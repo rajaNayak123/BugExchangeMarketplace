@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { PrismaClient } from "@prisma/client"
-import bcrypt from "bcryptjs"
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting database seeding...")
+  console.log("🌱 Starting database seeding...");
 
   try {
     // Create sample users
-    const hashedPassword = await bcrypt.hash("password123", 12)
+    const hashedPassword = await bcrypt.hash("password123", 12);
 
-    console.log("👤 Creating sample users...")
+    console.log("👤 Creating sample users...");
 
     const user1 = await prisma.user.upsert({
       where: { email: "john@example.com" },
@@ -23,7 +23,7 @@ async function main() {
         password: hashedPassword,
         reputation: 150,
       },
-    })
+    });
 
     const user2 = await prisma.user.upsert({
       where: { email: "jane@example.com" },
@@ -34,7 +34,7 @@ async function main() {
         password: hashedPassword,
         reputation: 200,
       },
-    })
+    });
 
     const user3 = await prisma.user.upsert({
       where: { email: "bob@example.com" },
@@ -45,7 +45,7 @@ async function main() {
         password: hashedPassword,
         reputation: 75,
       },
-    })
+    });
 
     const user4 = await prisma.user.upsert({
       where: { email: "alice@example.com" },
@@ -56,12 +56,12 @@ async function main() {
         password: hashedPassword,
         reputation: 300,
       },
-    })
+    });
 
-    console.log("✅ Sample users created")
+    console.log("✅ Sample users created");
 
     // Create sample bugs
-    console.log("🐛 Creating sample bugs...")
+    console.log("🐛 Creating sample bugs...");
 
     const bug1 = await prisma.bug.create({
       data: {
@@ -87,7 +87,7 @@ return (
         tags: ["React", "JavaScript", "Frontend", "useState"],
         authorId: user1.id,
       },
-    })
+    });
 
     const bug2 = await prisma.bug.create({
       data: {
@@ -110,7 +110,7 @@ db.on('error', console.error.bind(console, 'connection error:'));`,
         tags: ["MongoDB", "Node.js", "Backend", "Database"],
         authorId: user2.id,
       },
-    })
+    });
 
     const bug3 = await prisma.bug.create({
       data: {
@@ -139,7 +139,7 @@ db.on('error', console.error.bind(console, 'connection error:'));`,
         tags: ["CSS", "Frontend", "Mobile", "Flexbox"],
         authorId: user3.id,
       },
-    })
+    });
 
     const bug4 = await prisma.bug.create({
       data: {
@@ -159,7 +159,7 @@ export async function GET(request: Request) {
         tags: ["Next.js", "API", "Production", "Deployment"],
         authorId: user4.id,
       },
-    })
+    });
 
     const bug5 = await prisma.bug.create({
       data: {
@@ -179,12 +179,12 @@ const result = processData([{ id: 1, name: "test" }]);`,
         tags: ["TypeScript", "Generics", "Types", "JavaScript"],
         authorId: user1.id,
       },
-    })
+    });
 
-    console.log("✅ Sample bugs created")
+    console.log("✅ Sample bugs created");
 
     // Create sample submissions
-    console.log("📝 Creating sample submissions...")
+    console.log("📝 Creating sample submissions...");
 
     const submission1 = await prisma.submission.create({
       data: {
@@ -205,7 +205,7 @@ const [state, dispatch] = useReducer(reducer, initialState);`,
         bugId: bug1.id,
         submitterId: user2.id,
       },
-    })
+    });
 
     const submission2 = await prisma.submission.create({
       data: {
@@ -232,11 +232,12 @@ mongoose.connection.on('error', (err) => {
         bugId: bug2.id,
         submitterId: user3.id,
       },
-    })
+    });
 
     const submission3 = await prisma.submission.create({
       data: {
-        description: "The flexbox issue can be solved by adjusting the media query and using proper flex properties.",
+        description:
+          "The flexbox issue can be solved by adjusting the media query and using proper flex properties.",
         solution: `.container {
   display: flex;
   justify-content: space-between;
@@ -264,36 +265,36 @@ mongoose.connection.on('error', (err) => {
         bugId: bug3.id,
         submitterId: user4.id,
       },
-    })
+    });
 
-    console.log("✅ Sample submissions created")
+    console.log("✅ Sample submissions created");
 
     // Update bug statuses for approved submissions
     await prisma.bug.update({
       where: { id: bug1.id },
       data: { status: "RESOLVED" },
-    })
+    });
 
     await prisma.bug.update({
       where: { id: bug3.id },
       data: { status: "RESOLVED" },
-    })
+    });
 
     // Update user reputations for approved submissions
     await prisma.user.update({
       where: { id: user2.id },
       data: { reputation: { increment: 5 } }, // 5 rep for ₹500 bounty
-    })
+    });
 
     await prisma.user.update({
       where: { id: user4.id },
       data: { reputation: { increment: 3 } }, // 3 rep for ₹300 bounty
-    })
+    });
 
-    console.log("✅ Updated bug statuses and user reputations")
+    console.log("✅ Updated bug statuses and user reputations");
 
     // Create some sample payments
-    console.log("💳 Creating sample payments...")
+    console.log("💳 Creating sample payments...");
 
     await prisma.payment.create({
       data: {
@@ -304,7 +305,7 @@ mongoose.connection.on('error', (err) => {
         bugId: bug1.id,
         userId: user1.id,
       },
-    })
+    });
 
     await prisma.payment.create({
       data: {
@@ -314,36 +315,36 @@ mongoose.connection.on('error', (err) => {
         bugId: bug3.id,
         userId: user3.id,
       },
-    })
+    });
 
-    console.log("✅ Sample payments created")
+    console.log("✅ Sample payments created");
 
-    console.log("\n🎉 Database seeding completed successfully!")
-    console.log("\n📊 Summary:")
-    console.log(`👤 Users created: 4`)
-    console.log(`🐛 Bugs created: 5`)
-    console.log(`📝 Submissions created: 3`)
-    console.log(`💳 Payments created: 2`)
-    console.log(`✅ Resolved bugs: 2`)
-    console.log(`⏳ Pending bugs: 3`)
+    console.log("\n🎉 Database seeding completed successfully!");
+    console.log("\n📊 Summary:");
+    console.log(`👤 Users created: 4`);
+    console.log(`🐛 Bugs created: 5`);
+    console.log(`📝 Submissions created: 3`);
+    console.log(`💳 Payments created: 2`);
+    console.log(`✅ Resolved bugs: 2`);
+    console.log(`⏳ Pending bugs: 3`);
 
-    console.log("\n🔐 Test Credentials:")
-    console.log("Email: john@example.com | Password: password123")
-    console.log("Email: jane@example.com | Password: password123")
-    console.log("Email: bob@example.com | Password: password123")
-    console.log("Email: alice@example.com | Password: password123")
+    console.log("\n🔐 Test Credentials:");
+    console.log("Email: john@example.com | Password: password123");
+    console.log("Email: jane@example.com | Password: password123");
+    console.log("Email: bob@example.com | Password: password123");
+    console.log("Email: alice@example.com | Password: password123");
   } catch (error) {
-    console.error("❌ Error during seeding:", error)
-    throw error
+    console.error("❌ Error during seeding:", error);
+    throw error;
   }
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seeding failed:", e)
-    process.exit(1)
+    console.error("❌ Seeding failed:", e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-    console.log("🔌 Database connection closed")
-  })
+    await prisma.$disconnect();
+    console.log("🔌 Database connection closed");
+  });
