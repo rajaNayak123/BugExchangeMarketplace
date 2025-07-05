@@ -16,8 +16,8 @@ A collaborative bug-fixing marketplace where:
 - Posters review submissions and release rewards.
 
 ---
-## 🚀 Live Demo
-[View Demo](https://bug-exchange-marketplace.vercel.app/)
+## 🚀 [Live Demo](https://bug-exchange-marketplace.vercel.app/)
+
 ---
 
 ## 🚀 Features
