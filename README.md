@@ -17,7 +17,7 @@ A collaborative bug-fixing marketplace where:
 
 ---
 ## 🚀 Live Demo
-![Bug Exchange Marketplace](https://bug-exchange-marketplace.vercel.app/)
+[View Demo](https://bug-exchange-marketplace.vercel.app/)
 ---
 
 ## 🚀 Features
