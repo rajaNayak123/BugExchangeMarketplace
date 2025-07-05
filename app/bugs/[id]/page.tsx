@@ -3,14 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { BugDetails } from "@/components/bug-details";
 
 interface BugPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function BugPage({ params }: BugPageProps) {
+  const { id } = await params;
+  
   const bug = await prisma.bug.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       author: {
         select: {
