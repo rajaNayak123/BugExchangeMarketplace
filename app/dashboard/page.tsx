@@ -10,36 +10,43 @@ import { Bug, IndianRupee, Trophy, User } from "lucide-react"
 import Link from "next/link"
 import { EmailTest } from "@/components/email-test"
 import { DashboardPaymentButton } from "@/components/dashboard-client"
-import { Prisma } from "@prisma/client"
 
-// Define types for better type safety
-type UserBug = Prisma.BugGetPayload<{
-  include: {
-    _count: {
-      select: { submissions: true };
-    };
-    payments: {
-      select: {
-        status: true;
-      };
+// Define interfaces for type safety
+interface UserBug {
+  id: string;
+  title: string;
+  description: string;
+  bountyAmount: number;
+  status: string;
+  createdAt: Date;
+  _count: {
+    submissions: number;
+  };
+  payments: {
+    status: string;
+  }[];
+}
+
+interface UserSubmission {
+  id: string;
+  description: string;
+  status: string;
+  createdAt: Date;
+  bug: {
+    id: string;
+    title: string;
+    bountyAmount: number;
+    author: {
+      name: string | null;
     };
   };
-}>;
+}
 
-type UserSubmission = Prisma.SubmissionGetPayload<{
-  include: {
-    bug: {
-      select: {
-        id: true;
-        title: true;
-        bountyAmount: true;
-        author: {
-          select: { name: true };
-        };
-      };
-    };
-  };
-}>;
+interface User {
+  id: string;
+  name: string | null;
+  reputation: number;
+}
 
 async function getUserData(userId: string) {
   const [user, userBugs, userSubmissions] = await Promise.all([
@@ -78,11 +85,14 @@ async function getUserData(userId: string) {
     }),
   ])
 
+  // Type the submissions properly for the stats calculation
+  const typedSubmissions = userSubmissions as UserSubmission[]
+
   const stats = {
     totalBugsPosted: userBugs.length,
     totalSubmissions: userSubmissions.length,
-    approvedSubmissions: userSubmissions.filter((s: UserSubmission) => s.status === "APPROVED").length,
-    totalEarnings: userSubmissions
+    approvedSubmissions: typedSubmissions.filter((s: UserSubmission) => s.status === "APPROVED").length,
+    totalEarnings: typedSubmissions
       .filter((s: UserSubmission) => s.status === "APPROVED")
       .reduce((sum: number, s: UserSubmission) => sum + s.bug.bountyAmount, 0),
   }
@@ -103,11 +113,16 @@ export default async function DashboardPage() {
     redirect("/auth/signin")
   }
 
+  // Type the data properly
+  const typedUser = user as User
+  const typedUserBugs = userBugs as UserBug[]
+  const typedUserSubmissions = userSubmissions as UserSubmission[]
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-gray-600">Welcome back, {user.name}!</p>
+        <p className="text-gray-600">Welcome back, {typedUser.name}!</p>
       </div>
 
       {/* Stats Cards */}
@@ -118,7 +133,7 @@ export default async function DashboardPage() {
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{user.reputation}</div>
+            <div className="text-2xl font-bold">{typedUser.reputation}</div>
           </CardContent>
         </Card>
 
@@ -174,7 +189,7 @@ export default async function DashboardPage() {
             </Button>
           </div>
 
-          {userBugs.length === 0 ? (
+          {typedUserBugs.length === 0 ? (
             <Card>
               <CardContent className="text-center py-8">
                 <p className="text-gray-500">You haven't posted any bugs yet.</p>
@@ -185,8 +200,8 @@ export default async function DashboardPage() {
             </Card>
           ) : (
             <div className="space-y-4">
-              {userBugs.map((bug: UserBug) => {
-                const isPaid = bug.payments.some((payment) => payment.status === "COMPLETED")
+              {typedUserBugs.map((bug: UserBug) => {
+                const isPaid = bug.payments.some((payment: { status: string }) => payment.status === "COMPLETED")
                 const needsPayment = bug.status === "OPEN" && !isPaid
 
                 return (
@@ -234,7 +249,7 @@ export default async function DashboardPage() {
         <TabsContent value="my-submissions" className="space-y-4">
           <h2 className="text-xl font-semibold">My Submissions</h2>
 
-          {userSubmissions.length === 0 ? (
+          {typedUserSubmissions.length === 0 ? (
             <Card>
               <CardContent className="text-center py-8">
                 <p className="text-gray-500">You haven't made any submissions yet.</p>
@@ -245,7 +260,7 @@ export default async function DashboardPage() {
             </Card>
           ) : (
             <div className="space-y-4">
-              {userSubmissions.map((submission: UserSubmission) => (
+              {typedUserSubmissions.map((submission: UserSubmission) => (
                 <Card key={submission.id}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
