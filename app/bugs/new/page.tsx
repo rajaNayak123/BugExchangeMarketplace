@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { X } from "lucide-react"
 import { bugSchema } from "@/lib/validations"
-import { PaymentButton } from "@/components/payment-button"
+import { BugCreationPaymentButton } from "@/components/bug-creation-client"
 
 export default function NewBugPage() {
   const { data: session, status } = useSession()
@@ -31,6 +31,14 @@ export default function NewBugPage() {
     tags: [] as string[],
   })
   const [currentTag, setCurrentTag] = useState("")
+
+  useEffect(() => {
+    if (createdBugId && showPayment) {
+      const handlePaymentSuccess = () => {
+        router.push(`/bugs/${createdBugId}`)
+      }
+    }
+  }, [createdBugId, router, showPayment])
 
   if (status === "loading") {
     return <div>Loading...</div>
@@ -92,11 +100,6 @@ export default function NewBugPage() {
     }
   }
 
-  const handlePaymentSuccess = () => {
-    alert("Payment successful! Your bug bounty is now active.")
-    router.push(`/bugs/${createdBugId}`)
-  }
-
   const skipPayment = () => {
     router.push(`/bugs/${createdBugId}`)
   }
@@ -122,11 +125,7 @@ export default function NewBugPage() {
               </div>
             </div>
 
-            <PaymentButton
-              bugId={createdBugId}
-              amount={Number.parseFloat(formData.bountyAmount)}
-              onSuccess={handlePaymentSuccess}
-            />
+            <BugCreationPaymentButton bugId={createdBugId} amount={Number.parseFloat(formData.bountyAmount)} />
 
             <div className="text-center">
               <Button variant="outline" onClick={skipPayment}>
