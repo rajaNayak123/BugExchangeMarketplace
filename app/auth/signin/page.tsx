@@ -49,6 +49,7 @@ export default function SignInPage() {
         router.push("/dashboard");
       }
     } catch (error) {
+      console.log(error)
       alert("Error: Please check your input");
     } finally {
       setIsLoading(false);
