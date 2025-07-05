@@ -91,6 +91,8 @@ export default function NewBugPage() {
         setShowPayment(true)
       } else {
         const error = await response.json()
+        console.log(error);
+        
         alert(`Error: ${error.message || "Something went wrong"}`)
       }
     } catch (error) {

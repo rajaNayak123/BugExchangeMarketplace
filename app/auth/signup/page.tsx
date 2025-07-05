@@ -59,6 +59,8 @@ export default function SignUpPage() {
         alert(`Error: ${error.message || "Something went wrong"}`);
       }
     } catch (error) {
+      console.log(error);
+      
       alert("Error: Please check your input");
     } finally {
       setIsLoading(false);

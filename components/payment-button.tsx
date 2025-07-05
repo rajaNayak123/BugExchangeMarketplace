@@ -106,6 +106,7 @@ export function PaymentButton({
       //     description: "Unable to process payment. Please try again.",
       //     variant: "destructive",
       //   })
+      // console.log(error)
       alert("Unable to process payment. Please try again.");
     } finally {
       setIsLoading(false);
