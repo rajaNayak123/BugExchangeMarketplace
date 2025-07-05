@@ -7,6 +7,36 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Bug, CheckCircle, IndianRupee } from "lucide-react";
 
+// Define types for better type safety
+type UserBug = {
+  id: string;
+  title: string;
+  bountyAmount: number;
+  status: string;
+  createdAt: Date;
+};
+
+type UserSubmission = {
+  id: string;
+  status: string;
+  createdAt: Date;
+  bug: {
+    id: string;
+    title: string;
+    bountyAmount: number;
+  };
+};
+
+type UserProfile = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  reputation: number;
+  bugs: UserBug[];
+  submissions: UserSubmission[];
+};
+
 async function getUserProfile(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -45,13 +75,12 @@ async function getUserProfile(userId: string) {
 
   const stats = {
     totalBugs: user.bugs.length,
-    resolvedBugs: user.bugs.filter((b) => b.status === "RESOLVED").length,
+    resolvedBugs: user.bugs.filter((b: UserBug) => b.status === "RESOLVED").length,
     totalSubmissions: user.submissions.length,
-    approvedSubmissions: user.submissions.filter((s) => s.status === "APPROVED")
-      .length,
+    approvedSubmissions: user.submissions.filter((s: UserSubmission) => s.status === "APPROVED").length,
     totalEarnings: user.submissions
-      .filter((s) => s.status === "APPROVED")
-      .reduce((sum, s) => sum + s.bug.bountyAmount, 0),
+      .filter((s: UserSubmission) => s.status === "APPROVED")
+      .reduce((sum: number, s: UserSubmission) => sum + s.bug.bountyAmount, 0),
   };
 
   return { user, stats };
@@ -168,7 +197,7 @@ export default async function ProfilePage() {
               </p>
             ) : (
               <div className="space-y-3">
-                {user.bugs.map((bug) => (
+                {user.bugs.map((bug: UserBug) => (
                   <div
                     key={bug.id}
                     className="flex items-center justify-between p-3 border rounded-lg"
@@ -213,7 +242,7 @@ export default async function ProfilePage() {
               </p>
             ) : (
               <div className="space-y-3">
-                {user.submissions.map((submission) => (
+                {user.submissions.map((submission: UserSubmission) => (
                   <div
                     key={submission.id}
                     className="flex items-center justify-between p-3 border rounded-lg"
