@@ -8,10 +8,26 @@ interface BugPageProps {
   }>;
 }
 
-export default async function BugPage({ params }: BugPageProps) {
-  const { id } = await params;
-  
-  const bug = await prisma.bug.findUnique({
+// Define the types for the Prisma query result
+type BugWithRelations = NonNullable<Awaited<ReturnType<typeof getBugWithRelations>>>;
+
+type SubmissionWithSubmitter = {
+  id: string;
+  description: string;
+  solution: string;
+  status: string;
+  createdAt: Date;
+  submitter: {
+    id: string;
+    name: string | null;
+    image: string | null;
+    reputation: number;
+  };
+};
+
+// Extract the query logic into a separate function for better type inference
+async function getBugWithRelations(id: string) {
+  return await prisma.bug.findUnique({
     where: { id },
     include: {
       author: {
@@ -39,6 +55,12 @@ export default async function BugPage({ params }: BugPageProps) {
       },
     },
   });
+}
+
+export default async function BugPage({ params }: BugPageProps) {
+  const { id } = await params;
+  
+  const bug = await getBugWithRelations(id);
 
   if (!bug) {
     notFound();
@@ -61,7 +83,7 @@ export default async function BugPage({ params }: BugPageProps) {
       image: bug.author.image || undefined,
       reputation: bug.author.reputation,
     },
-    submissions: bug.submissions.map((submission) => ({
+    submissions: bug.submissions.map((submission: SubmissionWithSubmitter) => ({
       id: submission.id,
       description: submission.description,
       solution: submission.solution,
