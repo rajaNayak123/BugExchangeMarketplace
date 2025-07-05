@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { IndianRupee, Code, AlertTriangle } from "lucide-react"
 import { submissionSchema } from "@/lib/validations"
-import { PaymentButton } from "@/components/payment-button"
+import { BugDetailsPaymentButton } from "@/components/bug-details-client"
 
 // Define proper interfaces
 interface BugAuthor {
@@ -136,11 +136,6 @@ export function BugDetails({ bug }: BugDetailsProps) {
     }
   }
 
-  const handlePaymentSuccess = () => {
-    alert("Payment successful! Your bug bounty has been posted.")
-    window.location.reload()
-  }
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -207,7 +202,7 @@ export function BugDetails({ bug }: BugDetailsProps) {
                   Fund your bug bounty to make it active. Developers will be able to claim and fix your bug once payment
                   is confirmed.
                 </p>
-                <PaymentButton bugId={bug.id} amount={bug.bountyAmount} onSuccess={handlePaymentSuccess} />
+                <BugDetailsPaymentButton bugId={bug.id} amount={bug.bountyAmount} />
               </CardContent>
             </Card>
           )}
