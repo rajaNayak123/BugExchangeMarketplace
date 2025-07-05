@@ -115,7 +115,7 @@ export function PaymentButton({
   return (
     <>
       <script src="https://checkout.razorpay.com/v1/checkout.js" />
-      <Button onClick={handlePayment} disabled={isLoading} className="w-full">
+      <Button onClick={handlePayment} disabled={isLoading}>
         <CreditCard className="w-4 h-4 mr-2" />
         {isLoading ? "Processing..." : `Pay ₹${amount.toLocaleString()}`}
       </Button>
