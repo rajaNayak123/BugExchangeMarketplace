@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard } from "lucide-react";
-// import { useToast } from "@/hooks/use-toast"
 
 interface PaymentButtonProps {
   bugId: string;
@@ -11,9 +10,34 @@ interface PaymentButtonProps {
   onSuccess?: () => void;
 }
 
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  handler: (response: RazorpayResponse) => void;
+  prefill: {
+    name: string;
+    email: string;
+  };
+  theme: {
+    color: string;
+  };
+}
+
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: new (options: RazorpayOptions) => {
+      open: () => void;
+    };
   }
 }
 
@@ -23,9 +47,42 @@ export function PaymentButton({
   onSuccess,
 }: PaymentButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  //   const { toast } = useToast()
+  const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
+
+  useEffect(() => {
+    // Load Razorpay script
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => setIsRazorpayLoaded(true);
+    script.onerror = () => {
+      console.error("Failed to load Razorpay script");
+      alert(
+        "Failed to load payment gateway. Please refresh the page and try again."
+      );
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const handlePayment = async () => {
+    if (!isRazorpayLoaded) {
+      alert(
+        "Payment gateway is still loading. Please wait a moment and try again."
+      );
+      return;
+    }
+
+    const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+    if (!razorpayKey) {
+      console.error("Razorpay key not found");
+      alert("Payment configuration error. Please contact support.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       // Create order
@@ -38,7 +95,8 @@ export function PaymentButton({
       });
 
       if (!orderResponse.ok) {
-        throw new Error("Failed to create order");
+        const errorData = await orderResponse.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to create order");
       }
 
       const {
@@ -48,14 +106,14 @@ export function PaymentButton({
       } = await orderResponse.json();
 
       // Initialize Razorpay
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      const options: RazorpayOptions = {
+        key: razorpayKey,
         amount: orderAmount,
         currency,
         name: "Bug Exchange",
         description: "Bug Bounty Payment",
         order_id: orderId,
-        handler: async (response: any) => {
+        handler: async (response: RazorpayResponse) => {
           try {
             // Verify payment
             const verifyResponse = await fetch("/api/payments/verify", {
@@ -71,22 +129,21 @@ export function PaymentButton({
             });
 
             if (verifyResponse.ok) {
-              //   toast({
-              //     title: "Payment Successful",
-              //     description: "Your bounty has been posted successfully!",
-              //   })
-              alert("Your bounty has been posted successfully!");
+              alert("Payment successful! Your bounty has been posted.");
               onSuccess?.();
             } else {
-              throw new Error("Payment verification failed");
+              const errorData = await verifyResponse.json().catch(() => ({}));
+              throw new Error(
+                errorData.message || "Payment verification failed"
+              );
             }
           } catch (error) {
-            // toast({
-            //   title: "Payment Verification Failed",
-            //   description: "Please contact support",
-            //   variant: "destructive",
-            // })
-            alert("Payment Verification Failed Please contact support");
+            console.error("Payment verification error:", error);
+            alert(
+              `Payment verification failed: ${
+                error instanceof Error ? error.message : "Unknown error"
+              }`
+            );
           }
         },
         prefill: {
@@ -101,25 +158,29 @@ export function PaymentButton({
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
-      //   toast({
-      //     title: "Payment Failed",
-      //     description: "Unable to process payment. Please try again.",
-      //     variant: "destructive",
-      //   })
-      // console.log(error)
-      alert("Unable to process payment. Please try again.");
+      console.error("Payment error:", error);
+      alert(
+        `Payment failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <>
-      <script src="https://checkout.razorpay.com/v1/checkout.js" />
-      <Button onClick={handlePayment} disabled={isLoading}>
-        <CreditCard className="w-4 h-4 mr-2" />
-        {isLoading ? "Processing..." : `Pay ₹${amount.toLocaleString()}`}
-      </Button>
-    </>
+    <Button
+      onClick={handlePayment}
+      disabled={isLoading || !isRazorpayLoaded}
+      className="w-full"
+    >
+      <CreditCard className="w-4 h-4 mr-2" />
+      {isLoading
+        ? "Processing..."
+        : !isRazorpayLoaded
+        ? "Loading..."
+        : `Pay ₹${amount.toLocaleString()}`}
+    </Button>
   );
 }
