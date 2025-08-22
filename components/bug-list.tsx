@@ -1,73 +1,75 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Clock, IndianRupee, User } from "lucide-react"
-import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Clock, IndianRupee, User } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { formatDate } from "@/lib/utils";
+import { BugListSkeleton } from "@/components/ui/loading-skeletons";
 
 interface Bug {
-  id: string
-  title: string
-  description: string
-  bountyAmount: number
-  tags: string[]
-  status: string
-  createdAt: string
+  id: string;
+  title: string;
+  description: string;
+  bountyAmount: number;
+  tags: string[];
+  status: string;
+  createdAt: string;
   author: {
-    name: string
-    image?: string
-    reputation: number
-  }
+    name: string;
+    image?: string;
+    reputation: number;
+  };
   _count: {
-    submissions: number
-  }
+    submissions: number;
+  };
 }
 
 export function BugList() {
-  const [bugs, setBugs] = useState<Bug[]>([])
-  const [loading, setLoading] = useState(true)
-  const searchParams = useSearchParams()
+  const [bugs, setBugs] = useState<Bug[]>([]);
+  const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const fetchBugs = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        const params = new URLSearchParams()
+        const params = new URLSearchParams();
 
         // Add search parameters
         if (searchParams.get("query")) {
-          params.append("query", searchParams.get("query")!)
+          params.append("query", searchParams.get("query")!);
         }
         if (searchParams.get("tags")) {
-          params.append("tags", searchParams.get("tags")!)
+          params.append("tags", searchParams.get("tags")!);
         }
         if (searchParams.get("minBounty")) {
-          params.append("minBounty", searchParams.get("minBounty")!)
+          params.append("minBounty", searchParams.get("minBounty")!);
         }
         if (searchParams.get("maxBounty")) {
-          params.append("maxBounty", searchParams.get("maxBounty")!)
+          params.append("maxBounty", searchParams.get("maxBounty")!);
         }
 
-        const response = await fetch(`/api/bugs?${params.toString()}`)
+        const response = await fetch(`/api/bugs?${params.toString()}`);
         if (response.ok) {
-          const data = await response.json()
-          setBugs(data)
+          const data = await response.json();
+          setBugs(data);
         }
       } catch (error) {
-        console.error("Error fetching bugs:", error)
+        console.error("Error fetching bugs:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchBugs()
-  }, [searchParams])
+    fetchBugs();
+  }, [searchParams]);
 
   if (loading) {
-    return <div>Loading...</div>
+    return <BugListSkeleton />;
   }
 
   if (bugs.length === 0) {
@@ -77,7 +79,7 @@ export function BugList() {
           <p className="text-gray-500">No bugs found matching your criteria.</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -88,11 +90,16 @@ export function BugList() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <CardTitle className="text-lg mb-2">
-                  <Link href={`/bugs/${bug.id}`} className="hover:text-blue-600">
+                  <Link
+                    href={`/bugs/${bug.id}`}
+                    className="hover:text-blue-600"
+                  >
                     {bug.title}
                   </Link>
                 </CardTitle>
-                <p className="text-gray-600 text-sm line-clamp-2 mb-3">{bug.description}</p>
+                <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+                  {bug.description}
+                </p>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {bug.tags.map((tag) => (
                     <Badge key={tag} variant="secondary" className="text-xs">
@@ -106,7 +113,10 @@ export function BugList() {
                   <IndianRupee className="w-4 h-4" />
                   {bug.bountyAmount.toLocaleString()}
                 </div>
-                <Badge variant={bug.status === "OPEN" ? "default" : "secondary"} className="text-xs">
+                <Badge
+                  variant={bug.status === "OPEN" ? "default" : "secondary"}
+                  className="text-xs"
+                >
                   {bug.status}
                 </Badge>
               </div>
@@ -118,7 +128,9 @@ export function BugList() {
                 <div className="flex items-center space-x-2">
                   <Avatar className="w-6 h-6">
                     <AvatarImage src={bug.author.image || "/placeholder.svg"} />
-                    <AvatarFallback>{bug.author.name?.charAt(0) || "U"}</AvatarFallback>
+                    <AvatarFallback>
+                      {bug.author.name?.charAt(0) || "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <span>{bug.author.name}</span>
                   <Badge variant="outline" className="text-xs">
@@ -132,12 +144,12 @@ export function BugList() {
               </div>
               <div className="flex items-center space-x-1">
                 <Clock className="w-4 h-4" />
-                <span>{new Date(bug.createdAt).toLocaleDateString()}</span>
+                <span>{formatDate(bug.createdAt)}</span>
               </div>
             </div>
           </CardContent>
         </Card>
       ))}
     </div>
-  )
+  );
 }

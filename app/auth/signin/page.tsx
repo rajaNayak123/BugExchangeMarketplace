@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Github } from "lucide-react";
 import Link from "next/link";
 import { signInSchema } from "@/lib/validations";
+import { toast } from "sonner";
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -43,14 +44,14 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
-        alert("Error: Invalid credentials");
+        toast.error("Invalid credentials");
       } else {
-        alert("Success: Signed in successfully");
+        toast.success("Signed in successfully!");
         router.push("/dashboard");
       }
     } catch (error) {
-      console.log(error)
-      alert("Error: Please check your input");
+      console.log(error);
+      toast.error("Please check your input");
     } finally {
       setIsLoading(false);
     }
@@ -65,10 +66,16 @@ export default function SignInPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl text-center">Sign in</CardTitle>
-          <CardDescription className="text-center">Enter your email and password to sign in</CardDescription>
+          <CardDescription className="text-center">
+            Enter your email and password to sign in
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button variant="outline" onClick={handleGithubSignIn} className="w-full bg-transparent">
+          <Button
+            variant="outline"
+            onClick={handleGithubSignIn}
+            className="w-full bg-transparent"
+          >
             <Github className="w-4 h-4 mr-2" />
             Continue with GitHub
           </Button>
@@ -78,7 +85,9 @@ export default function SignInPage() {
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
 
@@ -90,7 +99,9 @@ export default function SignInPage() {
                 type="email"
                 placeholder="Enter your email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 required
               />
             </div>
@@ -101,7 +112,9 @@ export default function SignInPage() {
                 type="password"
                 placeholder="Enter your password"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 required
               />
             </div>
@@ -119,5 +132,5 @@ export default function SignInPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

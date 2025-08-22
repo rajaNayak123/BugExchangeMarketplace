@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Github } from "lucide-react";
 import Link from "next/link";
 import { signUpSchema } from "@/lib/validations";
+import { toast } from "sonner";
 
 export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +29,7 @@ export default function SignUpPage() {
     password: "",
   });
 
-//   const router = useRouter();
+  //   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +47,7 @@ export default function SignUpPage() {
       });
 
       if (response.ok) {
-        alert("Success: Account created successfully");
+        toast.success("Account created successfully!");
 
         // Sign in the user after successful signup
         await signIn("credentials", {
@@ -56,12 +57,12 @@ export default function SignUpPage() {
         });
       } else {
         const error = await response.json();
-        alert(`Error: ${error.message || "Something went wrong"}`);
+        toast.error(error.message || "Something went wrong");
       }
     } catch (error) {
       console.log(error);
-      
-      alert("Error: Please check your input");
+
+      toast.error("Please check your input");
     } finally {
       setIsLoading(false);
     }

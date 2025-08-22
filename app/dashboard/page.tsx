@@ -1,15 +1,18 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { redirect } from "next/navigation"
-import { prisma } from "@/lib/prisma"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bug, IndianRupee, Trophy, User } from "lucide-react"
-import Link from "next/link"
-import { EmailTest } from "@/components/email-test"
-import { DashboardPaymentButton } from "@/components/dashboard-client"
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Bug, IndianRupee, Trophy, User } from "lucide-react";
+import Link from "next/link";
+import { EmailTest } from "@/components/email-test";
+import { DashboardPaymentButton } from "@/components/dashboard-client";
+import { formatDate } from "@/lib/utils";
+import { DashboardSkeleton } from "@/components/ui/loading-skeletons";
+import { Suspense } from "react";
 
 // Define interfaces for type safety
 interface UserBug {
@@ -83,43 +86,48 @@ async function getUserData(userId: string) {
       },
       orderBy: { createdAt: "desc" },
     }),
-  ])
+  ]);
 
   // Type the submissions properly for the stats calculation
-  const typedSubmissions = userSubmissions as UserSubmission[]
+  const typedSubmissions = userSubmissions as UserSubmission[];
 
   const stats = {
     totalBugsPosted: userBugs.length,
     totalSubmissions: userSubmissions.length,
-    approvedSubmissions: typedSubmissions.filter((s: UserSubmission) => s.status === "APPROVED").length,
+    approvedSubmissions: typedSubmissions.filter(
+      (s: UserSubmission) => s.status === "APPROVED"
+    ).length,
     totalEarnings: typedSubmissions
       .filter((s: UserSubmission) => s.status === "APPROVED")
       .reduce((sum: number, s: UserSubmission) => sum + s.bug.bountyAmount, 0),
-  }
+  };
 
-  return { user, userBugs, userSubmissions, stats }
+  return { user, userBugs, userSubmissions, stats };
 }
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    redirect("/auth/signin")
+    redirect("/auth/signin");
   }
 
-  const { user, userBugs, userSubmissions, stats } = await getUserData(session.user.id)
+  const { user, userBugs, userSubmissions, stats } = await getUserData(
+    session.user.id
+  );
 
   if (!user) {
-    redirect("/auth/signin")
+    redirect("/auth/signin");
   }
 
   // Type the data properly
-  const typedUser = user as User
-  const typedUserBugs = userBugs as UserBug[]
-  const typedUserSubmissions = userSubmissions as UserSubmission[]
+  const typedUser = user as User;
+  const typedUserBugs = userBugs as UserBug[];
+  const typedUserSubmissions = userSubmissions as UserSubmission[];
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <Suspense fallback={<DashboardSkeleton />}>
+      <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
         <p className="text-gray-600">Welcome back, {typedUser.name}!</p>
@@ -154,17 +162,23 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalSubmissions}</div>
-            <p className="text-xs text-muted-foreground">{stats.approvedSubmissions} approved</p>
+            <p className="text-xs text-muted-foreground">
+              {stats.approvedSubmissions} approved
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Earnings
+            </CardTitle>
             <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹{stats.totalEarnings.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              ₹{stats.totalEarnings.toLocaleString()}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -192,7 +206,9 @@ export default async function DashboardPage() {
           {typedUserBugs.length === 0 ? (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-gray-500">You haven't posted any bugs yet.</p>
+                <p className="text-gray-500">
+                  You haven't posted any bugs yet.
+                </p>
                 <Button asChild className="mt-4">
                   <Link href="/bugs/new">Post Your First Bug</Link>
                 </Button>
@@ -201,8 +217,11 @@ export default async function DashboardPage() {
           ) : (
             <div className="space-y-4">
               {typedUserBugs.map((bug: UserBug) => {
-                const isPaid = bug.payments.some((payment: { status: string }) => payment.status === "COMPLETED")
-                const needsPayment = bug.status === "OPEN" && !isPaid
+                const isPaid = bug.payments.some(
+                  (payment: { status: string }) =>
+                    payment.status === "COMPLETED"
+                );
+                const needsPayment = bug.status === "OPEN" && !isPaid;
 
                 return (
                   <Card key={bug.id}>
@@ -210,18 +229,29 @@ export default async function DashboardPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-lg">
-                            <Link href={`/bugs/${bug.id}`} className="hover:text-blue-600">
+                            <Link
+                              href={`/bugs/${bug.id}`}
+                              className="hover:text-blue-600"
+                            >
                               {bug.title}
                             </Link>
                           </CardTitle>
-                          <p className="text-gray-600 text-sm mt-1 line-clamp-2">{bug.description}</p>
+                          <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                            {bug.description}
+                          </p>
                         </div>
                         <div className="text-right ml-4">
                           <div className="flex items-center text-green-600 font-semibold mb-2">
                             <IndianRupee className="w-4 h-4" />
                             {bug.bountyAmount.toLocaleString()}
                           </div>
-                          <Badge variant={bug.status === "OPEN" ? "default" : "secondary"}>{bug.status}</Badge>
+                          <Badge
+                            variant={
+                              bug.status === "OPEN" ? "default" : "secondary"
+                            }
+                          >
+                            {bug.status}
+                          </Badge>
                           {!isPaid && (
                             <Badge variant="outline" className="ml-2">
                               Unfunded
@@ -234,13 +264,18 @@ export default async function DashboardPage() {
                       <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-500">
                           <span>{bug._count.submissions} submissions • </span>
-                          <span>{new Date(bug.createdAt).toLocaleDateString()}</span>
+                          <span>{formatDate(bug.createdAt.toISOString())}</span>
                         </div>
-                        {needsPayment && <DashboardPaymentButton bugId={bug.id} amount={bug.bountyAmount} />}
+                        {needsPayment && (
+                          <DashboardPaymentButton
+                            bugId={bug.id}
+                            amount={bug.bountyAmount}
+                          />
+                        )}
                       </div>
                     </CardContent>
                   </Card>
-                )
+                );
               })}
             </div>
           )}
@@ -252,7 +287,9 @@ export default async function DashboardPage() {
           {typedUserSubmissions.length === 0 ? (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-gray-500">You haven't made any submissions yet.</p>
+                <p className="text-gray-500">
+                  You haven't made any submissions yet.
+                </p>
                 <Button asChild className="mt-4">
                   <Link href="/bugs">Browse Bugs</Link>
                 </Button>
@@ -266,12 +303,19 @@ export default async function DashboardPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <CardTitle className="text-lg">
-                          <Link href={`/bugs/${submission.bug.id}`} className="hover:text-blue-600">
+                          <Link
+                            href={`/bugs/${submission.bug.id}`}
+                            className="hover:text-blue-600"
+                          >
                             {submission.bug.title}
                           </Link>
                         </CardTitle>
-                        <p className="text-gray-600 text-sm mt-1">by {submission.bug.author.name}</p>
-                        <p className="text-gray-700 text-sm mt-2 line-clamp-2">{submission.description}</p>
+                        <p className="text-gray-600 text-sm mt-1">
+                          by {submission.bug.author.name}
+                        </p>
+                        <p className="text-gray-700 text-sm mt-2 line-clamp-2">
+                          {submission.description}
+                        </p>
                       </div>
                       <div className="text-right ml-4">
                         <div className="flex items-center text-green-600 font-semibold mb-2">
@@ -283,8 +327,8 @@ export default async function DashboardPage() {
                             submission.status === "APPROVED"
                               ? "default"
                               : submission.status === "REJECTED"
-                                ? "destructive"
-                                : "secondary"
+                              ? "destructive"
+                              : "secondary"
                           }
                         >
                           {submission.status}
@@ -294,7 +338,8 @@ export default async function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm text-gray-500">
-                      Submitted on {new Date(submission.createdAt).toLocaleDateString()}
+                      Submitted on{" "}
+                      {formatDate(submission.createdAt.toISOString())}
                     </div>
                   </CardContent>
                 </Card>
@@ -302,7 +347,7 @@ export default async function DashboardPage() {
             </div>
           )}
         </TabsContent>
-      </Tabs>
-    </div>
-  )
-}
+              </Tabs>
+      </div>
+    </Suspense>
+  );

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Bug, CheckCircle, IndianRupee } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
 // Define types for better type safety
 type UserBug = {
@@ -75,9 +76,12 @@ async function getUserProfile(userId: string) {
 
   const stats = {
     totalBugs: user.bugs.length,
-    resolvedBugs: user.bugs.filter((b: UserBug) => b.status === "RESOLVED").length,
+    resolvedBugs: user.bugs.filter((b: UserBug) => b.status === "RESOLVED")
+      .length,
     totalSubmissions: user.submissions.length,
-    approvedSubmissions: user.submissions.filter((s: UserSubmission) => s.status === "APPROVED").length,
+    approvedSubmissions: user.submissions.filter(
+      (s: UserSubmission) => s.status === "APPROVED"
+    ).length,
     totalEarnings: user.submissions
       .filter((s: UserSubmission) => s.status === "APPROVED")
       .reduce((sum: number, s: UserSubmission) => sum + s.bug.bountyAmount, 0),
@@ -207,7 +211,7 @@ export default async function ProfilePage() {
                         {bug.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {new Date(bug.createdAt).toLocaleDateString()}
+                        {formatDate(bug.createdAt.toISOString())}
                       </p>
                     </div>
                     <div className="text-right">
@@ -252,7 +256,7 @@ export default async function ProfilePage() {
                         {submission.bug.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {new Date(submission.createdAt).toLocaleDateString()}
+                        {formatDate(submission.createdAt.toISOString())}
                       </p>
                     </div>
                     <div className="text-right">

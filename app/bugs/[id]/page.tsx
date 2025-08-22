@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { BugDetails } from "@/components/bug-details";
+import { BugDetailsSkeleton } from "@/components/ui/loading-skeletons";
+import { Suspense } from "react";
 
 interface BugPageProps {
   params: Promise<{
@@ -9,7 +11,9 @@ interface BugPageProps {
 }
 
 // Define the types for the Prisma query result
-type BugWithRelations = NonNullable<Awaited<ReturnType<typeof getBugWithRelations>>>;
+type BugWithRelations = NonNullable<
+  Awaited<ReturnType<typeof getBugWithRelations>>
+>;
 
 type SubmissionWithSubmitter = {
   id: string;
@@ -59,7 +63,7 @@ async function getBugWithRelations(id: string) {
 
 export default async function BugPage({ params }: BugPageProps) {
   const { id } = await params;
-  
+
   const bug = await getBugWithRelations(id);
 
   if (!bug) {
@@ -98,5 +102,9 @@ export default async function BugPage({ params }: BugPageProps) {
     })),
   };
 
-  return <BugDetails bug={bugData} />;
+  return (
+    <Suspense fallback={<BugDetailsSkeleton />}>
+      <BugDetails bug={bugData} />
+    </Suspense>
+  );
 }

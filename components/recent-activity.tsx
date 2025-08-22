@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Clock, Bug, CheckCircle, IndianRupee } from "lucide-react";
 import Link from "next/link";
+import { formatDate } from "@/lib/utils";
 
 interface Activity {
   id: string;
@@ -134,7 +135,7 @@ export function RecentActivity() {
                       {activity.bug.bountyAmount.toLocaleString()}
                     </div>
                     <span className="text-xs text-gray-500">
-                      {new Date(activity.createdAt).toLocaleDateString()}
+                      {formatDate(activity.createdAt)}
                     </span>
                   </div>
                 </div>
