@@ -77,6 +77,7 @@ A collaborative bug-fixing marketplace where:
 ---
 
 ## 🔧 Environment Setup
+<<<<<<< HEAD
 
 Create a `.env.local` file in the root directory with the following variables:
 
@@ -161,3 +162,40 @@ bug-exchange-marketplace/
 **Happy Bug Hunting! 🐛💰**
 
 Made with ❤️ by developers, for developers.
+=======
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+# Database
+DATABASE_URL="mongodb://localhost:27017/bugexchange"
+
+# NextAuth
+NEXTAUTH_SECRET="your-nextauth-secret-here"
+NEXTAUTH_URL="http://localhost:3000"
+
+# GitHub OAuth (for authentication)
+GITHUB_ID="your-github-client-id"
+GITHUB_SECRET="your-github-client-secret"
+
+# Razorpay (for payments) - REQUIRED for payment functionality
+RAZORPAY_KEY_ID="your-razorpay-key-id"
+RAZORPAY_KEY_SECRET="your-razorpay-key-secret"
+NEXT_PUBLIC_RAZORPAY_KEY_ID="your-razorpay-key-id"
+
+# Email (for notifications)
+GMAIL_USER="your-email@gmail.com"
+GMAIL_APP_PASSWORD="your-gmail-app-password"
+```
+
+### Getting Razorpay Keys:
+
+1. Sign up at [Razorpay](https://razorpay.com/)
+2. Go to Settings → API Keys
+3. Generate a new key pair
+4. Use the Key ID and Key Secret in your environment variables
+
+---
+
+## 📁 Folder Structure (App Router)
+>>>>>>> d449a45e6e7de156b7fa7ce778835eb5b0cad14e

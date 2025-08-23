@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard } from "lucide-react";
-import { toast } from "sonner";
+// import { useToast } from "@/hooks/use-toast"
 
 interface PaymentButtonProps {
   bugId: string;
@@ -48,42 +48,9 @@ export function PaymentButton({
   onSuccess,
 }: PaymentButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
-
-  useEffect(() => {
-    // Load Razorpay script
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    script.onload = () => setIsRazorpayLoaded(true);
-    script.onerror = () => {
-      console.error("Failed to load Razorpay script");
-      toast.error(
-        "Failed to load payment gateway. Please refresh the page and try again."
-      );
-    };
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+  //   const { toast } = useToast()
 
   const handlePayment = async () => {
-    if (!isRazorpayLoaded) {
-      toast.error(
-        "Payment gateway is still loading. Please wait a moment and try again."
-      );
-      return;
-    }
-
-    const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-    if (!razorpayKey) {
-      console.error("Razorpay key not found");
-      toast.error("Payment configuration error. Please contact support.");
-      return;
-    }
-
     setIsLoading(true);
     try {
       // Create order
@@ -130,7 +97,11 @@ export function PaymentButton({
             });
 
             if (verifyResponse.ok) {
-              toast.success("Payment successful! Your bounty has been posted.");
+              //   toast({
+              //     title: "Payment Successful",
+              //     description: "Your bounty has been posted successfully!",
+              //   })
+              alert("Your bounty has been posted successfully!");
               onSuccess?.();
             } else {
               const errorData = await verifyResponse.json().catch(() => ({}));
@@ -139,12 +110,12 @@ export function PaymentButton({
               );
             }
           } catch (error) {
-            console.error("Payment verification error:", error);
-            toast.error(
-              `Payment verification failed: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`
-            );
+            // toast({
+            //   title: "Payment Verification Failed",
+            //   description: "Please contact support",
+            //   variant: "destructive",
+            // })
+            alert("Payment Verification Failed Please contact support");
           }
         },
         prefill: {
@@ -159,25 +130,25 @@ export function PaymentButton({
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
-      console.error("Payment error:", error);
-      toast.error(
-        `Payment failed: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+      //   toast({
+      //     title: "Payment Failed",
+      //     description: "Unable to process payment. Please try again.",
+      //     variant: "destructive",
+      //   })
+      // console.log(error)
+      alert("Unable to process payment. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Button onClick={handlePayment} disabled={isLoading || !isRazorpayLoaded}>
-      <CreditCard className="w-4 h-4 mr-2" />
-      {isLoading
-        ? "Processing..."
-        : !isRazorpayLoaded
-        ? "Loading..."
-        : `Pay ₹${amount.toLocaleString()}`}
-    </Button>
+    <>
+      <script src="https://checkout.razorpay.com/v1/checkout.js" />
+      <Button onClick={handlePayment} disabled={isLoading}>
+        <CreditCard className="w-4 h-4 mr-2" />
+        {isLoading ? "Processing..." : `Pay ₹${amount.toLocaleString()}`}
+      </Button>
+    </>
   );
 }
