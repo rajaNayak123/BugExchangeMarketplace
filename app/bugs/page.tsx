@@ -1,9 +1,10 @@
 import { Suspense } from "react";
 import { BugList } from "@/components/bug-list";
-import { BugFilters } from "@/components/bug-filters";
+import { AdvancedSearch } from "@/components/advanced-search";
 import { RecentActivity } from "@/components/recent-activity";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BugListSkeleton } from "@/components/ui/loading-skeletons";
 
 export default function BugsPage() {
   return (
@@ -13,45 +14,12 @@ export default function BugsPage() {
         <p className="text-gray-600">Find bugs to fix and earn bounties</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-1 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Filters</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <BugFilters />
-            </CardContent>
-          </Card>
-
-          <RecentActivity />
-        </div>
-
-        <div className="lg:col-span-3">
-          <Suspense fallback={<BugListSkeleton />}>
-            <BugList />
-          </Suspense>
-        </div>
+      <div className="space-y-6">
+        <AdvancedSearch />
+        <Suspense fallback={<BugListSkeleton />}>
+          <BugList />
+        </Suspense>
       </div>
-    </div>
-  );
-}
-
-function BugListSkeleton() {
-  return (
-    <div className="space-y-4">
-      {[...Array(5)].map((_, i) => (
-        <Card key={i}>
-          <CardHeader>
-            <Skeleton className="h-6 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-4 w-full mb-2" />
-            <Skeleton className="h-4 w-2/3" />
-          </CardContent>
-        </Card>
-      ))}
     </div>
   );
 }
