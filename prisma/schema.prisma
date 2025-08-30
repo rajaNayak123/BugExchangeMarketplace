@@ -51,11 +51,16 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  account     Account[]
-  session     Session[]
-  bugs        Bug[]
-  submissions Submission[]
-  payments    Payment[]
+  account       Account[]
+  session       Session[]
+  bugs          Bug[]
+  submissions   Submission[]
+  payments      Payment[]
+  comments      Comment[]
+  notifications Notification[]
+  conversations ConversationParticipant[]
+  messages      Message[]
+  attachments   Attachment[]
 
   @@map("users")
 }
@@ -86,6 +91,7 @@ model Bug {
 
   submissions Submission[]
   payments    Payment[]
+  comments    Comment[]
 
   @@map("bugs")
 }
@@ -103,6 +109,9 @@ model Submission {
 
   submitterId String @db.ObjectId
   submitter   User   @relation(fields: [submitterId], references: [id], onDelete: Cascade)
+
+  comments    Comment[]
+  attachments Attachment[]
 
   @@map("submissions")
 }
@@ -125,6 +134,96 @@ model Payment {
   @@map("payments")
 }
 
+model Comment {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  content      String
+  authorId     String   @db.ObjectId
+  bugId        String?  @db.ObjectId
+  submissionId String?  @db.ObjectId
+  parentId     String?  @db.ObjectId
+  mentions     String[] // Array of mentioned user IDs
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  author     User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  bug        Bug?        @relation(fields: [bugId], references: [id], onDelete: Cascade)
+  submission Submission? @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  parent     Comment?    @relation("CommentReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies    Comment[]   @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+model Notification {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String           @db.ObjectId
+  type      NotificationType
+  title     String
+  message   String
+  data      String? // JSON string for additional data
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Conversation {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String   @db.ObjectId
+  userId         String   @db.ObjectId
+  joinedAt       DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String   @db.ObjectId
+  senderId       String   @db.ObjectId
+  content        String
+  attachments    String[] // Array of attachment URLs
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model Attachment {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  submissionId String   @db.ObjectId
+  uploadedById String   @db.ObjectId
+  createdAt    DateTime @default(now())
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  uploadedBy User       @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
+
 enum BugStatus {
   OPEN
   CLAIMED
@@ -143,4 +242,13 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   REFUNDED
+}
+
+enum NotificationType {
+  COMMENT
+  MENTION
+  BUG_STATUS_CHANGE
+  SUBMISSION_STATUS_CHANGE
+  NEW_MESSAGE
+  BUG_ASSIGNED
 }

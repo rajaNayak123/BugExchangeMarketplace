@@ -75,7 +75,7 @@ export function PaymentButton({
 
       // Initialize Razorpay
       const options: RazorpayOptions = {
-        key: razorpayKey,
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || "rzp_test_placeholder",
         amount: orderAmount,
         currency,
         name: "Bug Exchange",

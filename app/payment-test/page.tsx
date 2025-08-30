@@ -1,3 +1,5 @@
+"use client";
+
 import { PaymentButton } from "@/components/payment-button";
 import { PaymentDebug } from "@/components/payment-debug";
 

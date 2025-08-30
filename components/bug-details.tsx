@@ -14,6 +14,7 @@ import { submissionSchema } from "@/lib/validations";
 import { BugDetailsPaymentButton } from "@/components/bug-details-client";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
+import { CommentSection } from "./comment-section";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -241,6 +242,16 @@ export function BugDetails({ bug }: BugDetailsProps) {
               </CardContent>
             </Card>
           )}
+
+          {/* Comments Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Comments</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CommentSection bugId={bug.id} />
+            </CardContent>
+          </Card>
 
           {/* Submission Form */}
           {canSubmit && (

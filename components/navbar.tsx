@@ -9,13 +9,47 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bug, User, LogOut, Plus, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Bug,
+  User,
+  LogOut,
+  Plus,
+  Search,
+  Bell,
+  MessageCircle,
+} from "lucide-react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { use } from "react";
+import { useState, useEffect } from "react";
+import { NotificationsPanel } from "./notifications-panel";
+import { MessagingPanel } from "./messaging-panel";
 
 export function Navbar() {
   const { data: session } = useSession();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showMessaging, setShowMessaging] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    if (session) {
+      fetchUnreadNotifications();
+    }
+  }, [session]);
+
+  const fetchUnreadNotifications = async () => {
+    try {
+      const response = await fetch(
+        "/api/notifications?unreadOnly=true&limit=1"
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadNotifications(data.pagination.total);
+      }
+    } catch (error) {
+      console.error("Error fetching unread notifications:", error);
+    }
+  };
 
   return (
     <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -40,6 +74,33 @@ export function Navbar() {
                   <Plus className="w-4 h-4 mr-2" />
                   Post Bug
                 </Link>
+              </Button>
+
+              {/* Notifications */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowNotifications(true)}
+                className="relative"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadNotifications > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
+                  >
+                    {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                  </Badge>
+                )}
+              </Button>
+
+              {/* Messaging */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMessaging(true)}
+              >
+                <MessageCircle className="w-4 h-4" />
               </Button>
 
               <DropdownMenu>
@@ -107,6 +168,18 @@ export function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Notifications Panel */}
+      <NotificationsPanel
+        isOpen={showNotifications}
+        onClose={() => setShowNotifications(false)}
+      />
+
+      {/* Messaging Panel */}
+      <MessagingPanel
+        isOpen={showMessaging}
+        onClose={() => setShowMessaging(false)}
+      />
     </nav>
   );
 }

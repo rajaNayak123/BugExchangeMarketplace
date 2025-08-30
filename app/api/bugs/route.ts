@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build orderBy clause
-    let orderBy: any = {};
+    const orderBy: any = {};
     switch (sortBy) {
       case "newest":
         orderBy.createdAt = sortOrder;
