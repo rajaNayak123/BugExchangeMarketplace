@@ -48,19 +48,22 @@ model User {
   image         String?
   password      String?
   reputation    Int       @default(0)
+  expertise     String[]  @default([]) // Areas of expertise for auto-assignment
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  account       Account[]
-  session       Session[]
-  bugs          Bug[]
-  submissions   Submission[]
-  payments      Payment[]
-  comments      Comment[]
-  notifications Notification[]
-  conversations ConversationParticipant[]
-  messages      Message[]
-  attachments   Attachment[]
+  account        Account[]
+  session        Session[]
+  bugs           Bug[]
+  assignedBugs   Bug[]                     @relation("BugAssignee") // Bugs assigned to this user
+  submissions    Submission[]
+  payments       Payment[]
+  comments       Comment[]
+  notifications  Notification[]
+  conversations  ConversationParticipant[]
+  messages       Message[]
+  attachments    Attachment[]
+  bugTransitions BugTransition[] // Track bug lifecycle changes
 
   @@map("users")
 }
@@ -75,23 +78,37 @@ model VerificationToken {
 }
 
 model Bug {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  title        String
-  description  String
-  stackTrace   String?
-  repoSnippet  String?
-  bountyAmount Float
-  tags         String[]
-  status       BugStatus @default(OPEN)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  description     String
+  stackTrace      String?
+  repoSnippet     String?
+  bountyAmount    Float
+  tags            String[]
+  status          BugStatus   @default(OPEN)
+  category        BugCategory @default(FUNCTIONALITY)
+  priority        BugPriority @default(MEDIUM)
+  severity        BugSeverity @default(MODERATE)
+  duplicateOfId   String?     @db.ObjectId // Reference to original bug if this is a duplicate
+  similarityScore Float? // Similarity score for duplication detection
+  originalBug     Bug?        @relation("BugDuplicates", fields: [duplicateOfId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
   authorId String @db.ObjectId
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
+  assignedToId String? @db.ObjectId
+  assignedTo   User?   @relation("BugAssignee", fields: [assignedToId], references: [id])
+
+  templateId String?      @db.ObjectId
+  template   BugTemplate? @relation(fields: [templateId], references: [id])
+
   submissions Submission[]
   payments    Payment[]
   comments    Comment[]
+  transitions BugTransition[] // Bug lifecycle history
+  duplicates  Bug[]           @relation("BugDuplicates") // Bugs that are duplicates of this one
 
   @@map("bugs")
 }
@@ -224,11 +241,73 @@ model Attachment {
   @@map("attachments")
 }
 
+model BugTemplate {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  category    BugCategory
+  priority    BugPriority
+  severity    BugSeverity
+  tags        String[]
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  bugs Bug[]
+
+  @@map("bug_templates")
+}
+
+model BugTransition {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  bugId        String     @db.ObjectId
+  fromStatus   BugStatus?
+  toStatus     BugStatus
+  assignedToId String?    @db.ObjectId
+  notes        String?
+  createdAt    DateTime   @default(now())
+
+  bug        Bug   @relation(fields: [bugId], references: [id], onDelete: Cascade)
+  assignedTo User? @relation(fields: [assignedToId], references: [id])
+
+  @@map("bug_transitions")
+}
+
 enum BugStatus {
   OPEN
+  IN_PROGRESS
   CLAIMED
+  UNDER_REVIEW
   RESOLVED
+  VERIFIED
   CLOSED
+  REOPENED
+  DUPLICATE
+}
+
+enum BugCategory {
+  SECURITY
+  PERFORMANCE
+  UI_UX
+  FUNCTIONALITY
+  ACCESSIBILITY
+  COMPATIBILITY
+  DOCUMENTATION
+  OTHER
+}
+
+enum BugPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum BugSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  BLOCKER
 }
 
 enum SubmissionStatus {

@@ -31,7 +31,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user.password) {
-          return null
+          return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
@@ -48,6 +48,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           image: user.image,
+          reputation: user.reputation,
         };
       },
     }),
@@ -57,6 +58,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.reputation = user.reputation;
       }
       return token;
     },
@@ -64,8 +66,18 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id;
+        session.user.reputation = token.reputation;
       }
       return session;
+    },
+
+    async redirect({ url, baseUrl }) {
+      // If the url is relative, prefix with baseUrl
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // If the url is on the same origin, allow it
+      else if (new URL(url).origin === baseUrl) return url;
+      // Otherwise, redirect to dashboard
+      return `${baseUrl}/dashboard`;
     },
   },
 

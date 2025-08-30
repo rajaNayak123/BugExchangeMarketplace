@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { bugSchema } from "@/lib/validations";
 import { BugCreationPaymentButton } from "@/components/bug-creation-client";
+import { BugTemplateSelector } from "@/components/bug-template-selector";
+import { DuplicateDetector } from "@/components/duplicate-detector";
 import { toast } from "sonner";
 
 export default function NewBugPage() {
@@ -29,9 +31,13 @@ export default function NewBugPage() {
     stackTrace: "",
     repoSnippet: "",
     bountyAmount: "",
+    category: "FUNCTIONALITY",
+    priority: "MEDIUM",
+    severity: "MODERATE",
     tags: [] as string[],
   });
   const [currentTag, setCurrentTag] = useState("");
+  const [showTemplates, setShowTemplates] = useState(false);
 
   useEffect(() => {
     if (createdBugId && showPayment) {
@@ -65,6 +71,20 @@ export default function NewBugPage() {
       ...prev,
       tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
+  };
+
+  const handleTemplateSelect = (template: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      title: template.name,
+      description: template.description,
+      category: template.category,
+      priority: template.priority,
+      severity: template.severity,
+      tags: template.tags,
+    }));
+    setShowTemplates(false);
+    toast.success(`Template "${template.name}" applied successfully!`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -157,6 +177,40 @@ export default function NewBugPage() {
           <CardTitle>Post a New Bug</CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Template Selector */}
+          <div className="mb-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowTemplates(!showTemplates)}
+              className="w-full"
+            >
+              {showTemplates ? "Hide Templates" : "Show Bug Templates"}
+            </Button>
+
+            {showTemplates && (
+              <div className="mt-4">
+                <BugTemplateSelector
+                  onTemplateSelect={handleTemplateSelect}
+                  selectedCategory={formData.category}
+                />
+              </div>
+            )}
+
+            {/* Duplicate Detector */}
+            <div className="mt-4">
+              <DuplicateDetector
+                title={formData.title}
+                description={formData.description}
+                tags={formData.tags}
+                stackTrace={formData.stackTrace}
+                onDuplicateFound={(duplicateId) => {
+                  window.open(`/bugs/${duplicateId}`, "_blank");
+                }}
+              />
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="title">Title *</Label>
@@ -236,6 +290,75 @@ export default function NewBugPage() {
                 }
                 required
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="category">Category *</Label>
+                <select
+                  id="category"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.category}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      category: e.target.value,
+                    }))
+                  }
+                  required
+                >
+                  <option value="FUNCTIONALITY">Functionality</option>
+                  <option value="SECURITY">Security</option>
+                  <option value="PERFORMANCE">Performance</option>
+                  <option value="UI_UX">UI/UX</option>
+                  <option value="ACCESSIBILITY">Accessibility</option>
+                  <option value="COMPATIBILITY">Compatibility</option>
+                  <option value="DOCUMENTATION">Documentation</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <Label htmlFor="priority">Priority *</Label>
+                <select
+                  id="priority"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.priority}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      priority: e.target.value,
+                    }))
+                  }
+                  required
+                >
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="CRITICAL">Critical</option>
+                </select>
+              </div>
+
+              <div>
+                <Label htmlFor="severity">Severity *</Label>
+                <select
+                  id="severity"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.severity}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      severity: e.target.value,
+                    }))
+                  }
+                  required
+                >
+                  <option value="MINOR">Minor</option>
+                  <option value="MODERATE">Moderate</option>
+                  <option value="MAJOR">Major</option>
+                  <option value="BLOCKER">Blocker</option>
+                </select>
+              </div>
             </div>
 
             <div>

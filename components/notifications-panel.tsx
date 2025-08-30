@@ -40,11 +40,13 @@ interface Notification {
 interface NotificationsPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenMessaging?: (conversationId?: string) => void;
 }
 
 export function NotificationsPanel({
   isOpen,
   onClose,
+  onOpenMessaging,
 }: NotificationsPanelProps) {
   const { data: session } = useSession();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -145,6 +147,41 @@ export function NotificationsPanel({
     }
   };
 
+  const handleNotificationClick = async (notification: Notification) => {
+    // Mark notification as read first
+    await markAsRead(notification.id);
+
+    // Handle different notification types
+    if (notification.type === "NEW_MESSAGE" && notification.data) {
+      try {
+        // Parse the data to extract conversation ID
+        const notificationData = JSON.parse(notification.data);
+        if (notificationData.conversationId && onOpenMessaging) {
+          // Close notifications panel and open messaging with specific conversation
+          onClose();
+          onOpenMessaging(notificationData.conversationId);
+          return;
+        }
+      } catch (error) {
+        console.error("Error parsing notification data:", error);
+      }
+    }
+
+    // For other notification types, just mark as read
+    // You can add more specific handling here for other types
+    if (notification.type === "BUG_STATUS_CHANGE" && notification.data) {
+      try {
+        const notificationData = JSON.parse(notification.data);
+        if (notificationData.bugId) {
+          // Could navigate to bug details page
+          console.log("Navigate to bug:", notificationData.bugId);
+        }
+      } catch (error) {
+        console.error("Error parsing bug notification data:", error);
+      }
+    }
+  };
+
   const clearAllNotifications = async () => {
     try {
       const response = await fetch("/api/notifications", {
@@ -219,30 +256,41 @@ export function NotificationsPanel({
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end p-4">
       <div className="fixed inset-0 bg-black/20" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-white rounded-lg shadow-xl border">
-        <CardHeader className="pb-3">
+      <div className="relative w-full max-w-md bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+        <CardHeader className="pb-3 bg-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              <h3 className="text-lg font-semibold">Notifications</h3>
+              <Bell className="h-5 w-5 text-gray-600" />
+              <h3 className="text-lg font-semibold text-gray-800">
+                Notifications
+              </h3>
               {unreadCount > 0 && (
-                <Badge variant="destructive" className="ml-2">
+                <Badge
+                  variant="destructive"
+                  className="ml-2 bg-red-500 hover:bg-red-600"
+                >
                   {unreadCount}
                 </Badge>
               )}
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="hover:bg-gray-200 rounded-md p-2"
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
 
           {notifications.length > 0 && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 mt-3">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={markAllAsRead}
                 disabled={unreadCount === 0}
+                className="bg-white hover:bg-gray-50 border-gray-300 text-gray-700 hover:text-gray-800 rounded-md"
               >
                 <Check className="h-3 w-3 mr-1" />
                 Mark all read
@@ -251,6 +299,7 @@ export function NotificationsPanel({
                 variant="outline"
                 size="sm"
                 onClick={clearAllNotifications}
+                className="bg-white hover:bg-gray-50 border-gray-300 text-gray-700 hover:text-gray-800 rounded-md"
               >
                 <Trash2 className="h-3 w-3 mr-1" />
                 Clear all
@@ -262,24 +311,28 @@ export function NotificationsPanel({
         <CardContent className="pt-0 max-h-96 overflow-y-auto">
           {loading && page === 1 ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-3"></div>
+              <p className="text-gray-600">Loading notifications...</p>
             </div>
           ) : notifications.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Bell className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-              <p>No notifications yet</p>
-              <p className="text-sm">We'll notify you when something happens</p>
+              <p className="font-medium text-gray-600">No notifications yet</p>
+              <p className="text-sm text-gray-500">
+                We'll notify you when something happens
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-3 rounded-lg border transition-colors ${
+                  className={`p-3 rounded-lg border transition-colors cursor-pointer ${
                     notification.read
-                      ? "bg-gray-50"
+                      ? "bg-gray-50 border-gray-200 hover:bg-gray-100"
                       : "bg-white border-blue-200"
                   }`}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex items-start gap-3">
                     <div
@@ -313,19 +366,25 @@ export function NotificationsPanel({
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => markAsRead(notification.id)}
-                              className="h-6 w-6 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markAsRead(notification.id);
+                              }}
+                              className="h-6 w-6 p-0 hover:bg-blue-100 rounded-md"
                             >
-                              <Check className="h-3 w-3" />
+                              <Check className="h-3 w-3 text-blue-600" />
                             </Button>
                           )}
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => deleteNotification(notification.id)}
-                            className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNotification(notification.id);
+                            }}
+                            className="h-6 w-6 p-0 hover:bg-red-100 rounded-md"
                           >
-                            <X className="h-3 w-3" />
+                            <Trash2 className="h-3 w-3 text-red-500" />
                           </Button>
                         </div>
                       </div>
@@ -333,18 +392,18 @@ export function NotificationsPanel({
                   </div>
                 </div>
               ))}
+            </div>
+          )}
 
-              {hasMore && (
-                <div className="text-center pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => fetchNotifications(page + 1)}
-                    disabled={loading}
-                  >
-                    {loading ? "Loading..." : "Load more"}
-                  </Button>
-                </div>
-              )}
+          {notifications.length > 0 && hasMore && (
+            <div className="text-center pt-4">
+              <Button
+                onClick={() => fetchNotifications(page + 1)}
+                disabled={loading}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md"
+              >
+                {loading ? "Loading..." : "Load more"}
+              </Button>
             </div>
           )}
         </CardContent>

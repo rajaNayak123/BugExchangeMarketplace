@@ -42,6 +42,14 @@ async function getBugWithRelations(id: string) {
           reputation: true,
         },
       },
+      assignedTo: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          reputation: true,
+        },
+      },
       submissions: {
         include: {
           submitter: {
@@ -80,6 +88,17 @@ export default async function BugPage({ params }: BugPageProps) {
     bountyAmount: bug.bountyAmount,
     tags: bug.tags,
     status: bug.status,
+    category: bug.category,
+    priority: bug.priority,
+    severity: bug.severity,
+    assignedTo: bug.assignedTo
+      ? {
+          id: bug.assignedTo.id,
+          name: bug.assignedTo.name || "",
+          image: bug.assignedTo.image || undefined,
+          reputation: bug.assignedTo.reputation,
+        }
+      : undefined,
     createdAt: bug.createdAt.toISOString(),
     author: {
       id: bug.author.id,

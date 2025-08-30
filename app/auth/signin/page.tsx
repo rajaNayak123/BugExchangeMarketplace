@@ -47,7 +47,8 @@ export default function SignInPage() {
         toast.error("Invalid credentials");
       } else {
         toast.success("Signed in successfully!");
-        router.push("/dashboard");
+        // Use replace to prevent back navigation to signin page
+        router.replace("/dashboard");
       }
     } catch (error) {
       console.log(error);
@@ -58,7 +59,10 @@ export default function SignInPage() {
   };
 
   const handleGithubSignIn = () => {
-    signIn("github", { callbackUrl: "/dashboard" });
+    signIn("github", {
+      callbackUrl: "/dashboard",
+      redirect: true,
+    });
   };
 
   return (

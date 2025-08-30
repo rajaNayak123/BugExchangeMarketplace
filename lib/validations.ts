@@ -18,6 +18,24 @@ export const bugSchema = z.object({
   repoSnippet: z.string().optional(),
   bountyAmount: z.number().min(100, "Minimum bounty is ₹100"),
   tags: z.array(z.string()).min(1, "At least one tag is required"),
+  category: z
+    .enum([
+      "SECURITY",
+      "PERFORMANCE",
+      "UI_UX",
+      "FUNCTIONALITY",
+      "ACCESSIBILITY",
+      "COMPATIBILITY",
+      "DOCUMENTATION",
+      "OTHER",
+    ])
+    .default("FUNCTIONALITY"),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).default("MEDIUM"),
+  severity: z
+    .enum(["MINOR", "MODERATE", "MAJOR", "BLOCKER"])
+    .default("MODERATE"),
+  assignedToId: z.string().optional(),
+  templateId: z.string().optional(),
 });
 
 export const submissionSchema = z.object({

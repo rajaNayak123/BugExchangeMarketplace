@@ -12,6 +12,9 @@ export async function GET(request: NextRequest) {
     const minBounty = searchParams.get("minBounty");
     const maxBounty = searchParams.get("maxBounty");
     const status = searchParams.get("status");
+    const category = searchParams.get("category");
+    const priority = searchParams.get("priority");
+    const severity = searchParams.get("severity");
     const sortBy = searchParams.get("sortBy") || "newest";
     const sortOrder = searchParams.get("sortOrder") || "desc";
     const page = Number(searchParams.get("page")) || 1;
@@ -33,6 +36,18 @@ export async function GET(request: NextRequest) {
 
     if (status && status !== "all") {
       where.status = status;
+    }
+
+    if (category && category !== "all") {
+      where.category = category;
+    }
+
+    if (priority && priority !== "all") {
+      where.priority = priority;
+    }
+
+    if (severity && severity !== "all") {
+      where.severity = severity;
     }
 
     if (minBounty || maxBounty) {
@@ -62,6 +77,18 @@ export async function GET(request: NextRequest) {
       case "least-submissions":
         orderBy.submissions = { _count: sortOrder };
         break;
+      case "highest-priority":
+        orderBy.priority = sortOrder;
+        break;
+      case "lowest-priority":
+        orderBy.priority = sortOrder;
+        break;
+      case "highest-severity":
+        orderBy.severity = sortOrder;
+        break;
+      case "lowest-severity":
+        orderBy.severity = sortOrder;
+        break;
       default:
         orderBy.createdAt = "desc";
     }
@@ -76,6 +103,14 @@ export async function GET(request: NextRequest) {
       include: {
         author: {
           select: {
+            name: true,
+            image: true,
+            reputation: true,
+          },
+        },
+        assignedTo: {
+          select: {
+            id: true,
             name: true,
             image: true,
             reputation: true,
@@ -129,6 +164,14 @@ export async function POST(request: NextRequest) {
       include: {
         author: {
           select: {
+            name: true,
+            image: true,
+            reputation: true,
+          },
+        },
+        assignedTo: {
+          select: {
+            id: true,
             name: true,
             image: true,
             reputation: true,

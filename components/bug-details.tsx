@@ -15,6 +15,8 @@ import { BugDetailsPaymentButton } from "@/components/bug-details-client";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
 import { CommentSection } from "./comment-section";
+import { BugAssignment } from "./bug-assignment";
+import { BugLifecycle } from "./bug-lifecycle";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -60,6 +62,15 @@ interface Bug {
   bountyAmount: number;
   tags: string[];
   status: string;
+  category: string;
+  priority: string;
+  severity: string;
+  assignedTo?: {
+    id: string;
+    name: string;
+    image?: string;
+    reputation: number;
+  };
   createdAt: string;
   author: BugAuthor;
   submissions: BugSubmission[];
@@ -175,6 +186,34 @@ export function BugDetails({ bug }: BugDetailsProps) {
                         {tag}
                       </Badge>
                     ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Badge
+                      variant="outline"
+                      className="bg-blue-50 text-blue-700 border-blue-200"
+                    >
+                      {bug.category}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="bg-orange-50 text-orange-700 border-orange-200"
+                    >
+                      {bug.priority} Priority
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="bg-red-50 text-red-700 border-red-200"
+                    >
+                      {bug.severity} Severity
+                    </Badge>
+                    {bug.assignedTo && (
+                      <Badge
+                        variant="outline"
+                        className="bg-green-50 text-green-700 border-green-200"
+                      >
+                        Assigned to {bug.assignedTo.name}
+                      </Badge>
+                    )}
                   </div>
                 </div>
                 <div className="text-right">
@@ -510,6 +549,19 @@ export function BugDetails({ bug }: BugDetailsProps) {
               </div>
             </CardContent>
           </Card>
+
+          <BugAssignment
+            bugId={bug.id}
+            assignedTo={bug.assignedTo}
+            authorId={bug.author.id}
+            onAssignmentChange={() => window.location.reload()}
+          />
+
+          <BugLifecycle
+            bugId={bug.id}
+            currentStatus={bug.status}
+            onStatusChange={() => window.location.reload()}
+          />
         </div>
       </div>
     </div>

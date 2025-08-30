@@ -18,6 +18,15 @@ interface Bug {
   bountyAmount: number;
   tags: string[];
   status: string;
+  category: string;
+  priority: string;
+  severity: string;
+  assignedTo?: {
+    id: string;
+    name: string;
+    image?: string;
+    reputation: number;
+  };
   createdAt: string;
   author: {
     name: string;
@@ -157,6 +166,34 @@ export function BugList() {
                         {tag}
                       </Badge>
                     ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <Badge
+                      variant="outline"
+                      className="text-xs bg-blue-50 text-blue-700 border-blue-200"
+                    >
+                      {bug.category}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="text-xs bg-orange-50 text-orange-700 border-orange-200"
+                    >
+                      {bug.priority} Priority
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="text-xs bg-red-50 text-red-700 border-red-200"
+                    >
+                      {bug.severity} Severity
+                    </Badge>
+                    {bug.assignedTo && (
+                      <Badge
+                        variant="outline"
+                        className="text-xs bg-green-50 text-green-700 border-green-200"
+                      >
+                        Assigned to {bug.assignedTo.name}
+                      </Badge>
+                    )}
                   </div>
                 </div>
                 <div className="text-right ml-4">

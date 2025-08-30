@@ -71,12 +71,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    console.log("Session user ID:", session.user.id);
     const body = await request.json();
+    console.log("Request body:", body);
     const { participantIds } = conversationSchema.parse(body);
+    console.log("Parsed participant IDs:", participantIds);
 
     // Ensure current user is included in participants
-    if (!participantIds.includes(session.user.id)) {
-      participantIds.push(session.user.id);
+    const allParticipantIds = [
+      ...new Set([...participantIds, session.user.id]),
+    ];
+
+    // Validate that we have at least 2 unique participants
+    if (allParticipantIds.length < 2) {
+      return NextResponse.json(
+        { error: "At least 2 participants required" },
+        { status: 400 }
+      );
     }
 
     // Check if conversation already exists
@@ -86,14 +97,14 @@ export async function POST(request: NextRequest) {
           {
             participants: {
               every: {
-                userId: { in: participantIds },
+                userId: { in: allParticipantIds },
               },
             },
           },
           {
             participants: {
               none: {
-                userId: { notIn: participantIds },
+                userId: { notIn: allParticipantIds },
               },
             },
           },
@@ -122,7 +133,7 @@ export async function POST(request: NextRequest) {
     const conversation = await prisma.conversation.create({
       data: {
         participants: {
-          create: participantIds.map((userId) => ({
+          create: allParticipantIds.map((userId) => ({
             userId,
           })),
         },
