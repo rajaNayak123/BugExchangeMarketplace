@@ -41,6 +41,7 @@ export const bugSchema = z.object({
 export const submissionSchema = z.object({
   description: z.string().min(20, "Description must be at least 20 characters"),
   solution: z.string().min(50, "Solution must be at least 50 characters"),
+  language: z.string().optional(),
 });
 
 export const searchSchema = z.object({

@@ -1,0 +1,168 @@
+/* Bug Exchange Reporter Extension Styles */
+
+.bug-exchange-reporter-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-left: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif;
+}
+
+.bug-exchange-reporter-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.bug-exchange-reporter-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* File header button */
+.bug-exchange-reporter-file {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  font-size: 13px;
+  padding: 8px 16px;
+}
+
+.bug-exchange-reporter-file:hover {
+  background: linear-gradient(135deg, #e085e8 0%, #e04a5f 100%);
+}
+
+/* Code block button */
+.bug-exchange-reporter-code-block {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  font-size: 11px;
+  padding: 4px 8px;
+  margin-top: 4px;
+}
+
+.bug-exchange-reporter-code-block:hover {
+  background: linear-gradient(135deg, #3e9be4 0%, #00d4e0 100%);
+}
+
+/* Line button */
+.bug-exchange-reporter-line {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.bug-exchange-reporter-line:hover {
+  opacity: 1;
+  background: linear-gradient(135deg, #f05f8a 0%, #fdd030 100%);
+}
+
+/* Wrapper for code block buttons */
+.bug-exchange-reporter-wrapper {
+  margin-top: 8px;
+  text-align: right;
+}
+
+/* GitHub specific adjustments */
+.github .bug-exchange-reporter-button {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+    sans-serif;
+}
+
+/* GitLab specific adjustments */
+.gitlab .bug-exchange-reporter-button {
+  font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bug-exchange-reporter-button {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .bug-exchange-reporter-file {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .bug-exchange-reporter-code-block {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .bug-exchange-reporter-line {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+}
+
+/* Animation for button appearance */
+@keyframes bugButtonAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bug-exchange-reporter-button {
+  animation: bugButtonAppear 0.3s ease-out;
+}
+
+/* Focus states for accessibility */
+.bug-exchange-reporter-button:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Loading state */
+.bug-exchange-reporter-button.loading {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.bug-exchange-reporter-button.loading::after {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 6px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success state */
+.bug-exchange-reporter-button.success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+/* Error state */
+.bug-exchange-reporter-button.error {
+  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+}
+

@@ -9,6 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CodeBlock } from "@/components/ui/code-block";
+import { DiffViewer } from "@/components/ui/diff-viewer";
+import { LanguageSelector } from "@/components/ui/language-selector";
 import { IndianRupee, Code, AlertTriangle } from "lucide-react";
 import { submissionSchema } from "@/lib/validations";
 import { BugDetailsPaymentButton } from "@/components/bug-details-client";
@@ -48,6 +51,7 @@ interface BugSubmission {
   id: string;
   description: string;
   solution: string;
+  language?: string;
   status: string;
   createdAt: string;
   submitter: BugSubmitter;
@@ -87,6 +91,7 @@ export function BugDetails({ bug }: BugDetailsProps) {
   const [submissionData, setSubmissionData] = useState({
     description: "",
     solution: "",
+    language: "",
   });
 
   const canSubmit =
@@ -114,7 +119,7 @@ export function BugDetails({ bug }: BugDetailsProps) {
       if (response.ok) {
         toast.success("Submission posted successfully!");
         setShowSubmissionForm(false);
-        setSubmissionData({ description: "", solution: "" });
+        setSubmissionData({ description: "", solution: "", language: "" });
         // Refresh the page to show the new submission
         window.location.reload();
       } else {
@@ -255,9 +260,7 @@ export function BugDetails({ bug }: BugDetailsProps) {
                     <Code className="w-4 h-4 mr-2" />
                     Code Snippet
                   </h3>
-                  <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
-                    {bug.repoSnippet}
-                  </pre>
+                  <CodeBlock code={bug.repoSnippet} className="mt-2" />
                 </div>
               )}
             </CardContent>
@@ -321,6 +324,18 @@ export function BugDetails({ bug }: BugDetailsProps) {
                         required
                       />
                     </div>
+
+                    <div>
+                      <LanguageSelector
+                        value={submissionData.language}
+                        onChange={(language) =>
+                          setSubmissionData((prev) => ({
+                            ...prev,
+                            language,
+                          }))
+                        }
+                      />
+                    </div>
                     <div>
                       <label className="block text-sm font-medium mb-2">
                         Solution
@@ -337,6 +352,18 @@ export function BugDetails({ bug }: BugDetailsProps) {
                         }
                         required
                       />
+                      {submissionData.solution && (
+                        <div className="mt-3">
+                          <label className="block text-sm font-medium mb-2 text-gray-600">
+                            Preview:
+                          </label>
+                          <CodeBlock
+                            code={submissionData.solution}
+                            language={submissionData.language}
+                            className="mt-2"
+                          />
+                        </div>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button type="submit" disabled={isSubmitting}>
@@ -420,9 +447,22 @@ export function BugDetails({ bug }: BugDetailsProps) {
                         </div>
                         <div>
                           <h4 className="font-medium text-sm mb-1">Solution</h4>
-                          <pre className="bg-gray-50 p-3 rounded text-xs overflow-x-auto">
-                            {submission.solution}
-                          </pre>
+                          <CodeBlock
+                            code={submission.solution}
+                            language={submission.language}
+                            className="mt-2"
+                          />
+
+                          {/* Show diff if there's original code to compare */}
+                          {bug.repoSnippet && (
+                            <div className="mt-4">
+                              <DiffViewer
+                                originalCode={bug.repoSnippet}
+                                newCode={submission.solution}
+                                className="mt-3"
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
 

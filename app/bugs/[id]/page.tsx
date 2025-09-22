@@ -19,6 +19,7 @@ type SubmissionWithSubmitter = {
   id: string;
   description: string;
   solution: string;
+  language?: string | null;
   status: string;
   createdAt: Date;
   submitter: {
@@ -110,6 +111,7 @@ export default async function BugPage({ params }: BugPageProps) {
       id: submission.id,
       description: submission.description,
       solution: submission.solution,
+      language: submission.language || undefined,
       status: submission.status,
       createdAt: submission.createdAt.toISOString(),
       submitter: {

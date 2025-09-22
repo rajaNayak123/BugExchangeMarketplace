@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "Bug Exchange Reporter",
+  "version": "1.0.0",
+  "description": "Report bugs directly from GitHub, GitLab, and other code repositories to Bug Exchange Marketplace",
+  "permissions": ["activeTab", "storage", "identity"],
+  "host_permissions": [
+    "https://github.com/*",
+    "https://gitlab.com/*",
+    "https://*.github.com/*",
+    "https://*.gitlab.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*", "https://gitlab.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Bug Exchange Reporter",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": ["https://github.com/*", "https://gitlab.com/*"]
+    }
+  ]
+}
+

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CodeBlock } from "@/components/ui/code-block";
 import { X } from "lucide-react";
 import { bugSchema } from "@/lib/validations";
 import { BugCreationPaymentButton } from "@/components/bug-creation-client";
@@ -260,18 +261,25 @@ export default function NewBugPage() {
 
             <div>
               <Label htmlFor="repoSnippet">Code Snippet</Label>
-              <Textarea
-                id="repoSnippet"
-                placeholder="Relevant code snippet or repository link"
-                rows={4}
-                value={formData.repoSnippet}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    repoSnippet: e.target.value,
-                  }))
-                }
-              />
+              <div className="space-y-2">
+                <Textarea
+                  id="repoSnippet"
+                  placeholder="Relevant code snippet or repository link"
+                  rows={4}
+                  value={formData.repoSnippet}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      repoSnippet: e.target.value,
+                    }))
+                  }
+                />
+                {formData.repoSnippet && (
+                  <div className="text-sm text-gray-600">
+                    <CodeBlock code={formData.repoSnippet} className="mt-2" />
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
