@@ -23,8 +23,11 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { NotificationsPanel } from "./notifications-panel";
-import { MessagingPanel } from "./messaging-panel";
+import { NotificationsPanel } from "../features/notifications-panel";
+import { MessagingPanel } from "../features/messaging-panel";
+import { ThemeToggle } from "../theme/theme-toggle";
+import { ThemeSelector } from "../theme/theme-selector";
+import { ClientThemeWrapper } from "../theme/client-theme-wrapper";
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -91,7 +94,8 @@ export function Navbar() {
           <span className="text-xl font-bold">Bug Exchange</span>
         </Link>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
+          {/* Primary Navigation - Always visible */}
           <Button variant="ghost" asChild>
             <Link href="/bugs">
               <Search className="w-4 h-4 mr-2" />
@@ -101,6 +105,7 @@ export function Navbar() {
 
           {session ? (
             <>
+              {/* User Actions - Only when logged in */}
               <Button asChild>
                 <Link href="/bugs/new">
                   <Plus className="w-4 h-4 mr-2" />
@@ -108,33 +113,46 @@ export function Navbar() {
                 </Link>
               </Button>
 
-              {/* Notifications */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowNotifications(true)}
-                className="relative hover:bg-gray-100 rounded-md p-2"
-              >
-                <Bell className="w-4 h-4" />
-                {unreadNotifications > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
-                  >
-                    {unreadNotifications > 9 ? "9+" : unreadNotifications}
-                  </Badge>
-                )}
-              </Button>
+              {/* Communication Icons - Grouped together */}
+              <div className="flex items-center space-x-1 border-l border-gray-200 pl-4">
+                {/* Notifications */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowNotifications(true)}
+                  className="relative hover:bg-gray-100 rounded-md p-2"
+                  title="Notifications"
+                >
+                  <Bell className="w-4 h-4" />
+                  {unreadNotifications > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
+                    >
+                      {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                    </Badge>
+                  )}
+                </Button>
 
-              {/* Messaging */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowMessaging(true)}
-                className="hover:bg-gray-100 rounded-md p-2"
-              >
-                <MessageCircle className="w-4 h-4" />
-              </Button>
+                {/* Messaging */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMessaging(true)}
+                  className="hover:bg-gray-100 rounded-md p-2"
+                  title="Messages"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Theme Controls - Grouped together */}
+              <ClientThemeWrapper>
+                <div className="flex items-center space-x-1 border-l border-gray-200 pl-4">
+                  <ThemeToggle />
+                  <ThemeSelector />
+                </div>
+              </ClientThemeWrapper>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -212,12 +230,23 @@ export function Navbar() {
             </>
           ) : (
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" asChild>
-                <Link href="/auth/signin">Sign In</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/auth/signup">Sign Up</Link>
-              </Button>
+              {/* Theme Controls - Available to all users */}
+              <ClientThemeWrapper>
+                <div className="flex items-center space-x-1 border-l border-gray-200 pl-4">
+                  <ThemeToggle />
+                  <ThemeSelector />
+                </div>
+              </ClientThemeWrapper>
+
+              {/* Authentication Buttons */}
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" asChild>
+                  <Link href="/auth/signin">Sign In</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/auth/signup">Sign Up</Link>
+                </Button>
+              </div>
             </div>
           )}
         </div>

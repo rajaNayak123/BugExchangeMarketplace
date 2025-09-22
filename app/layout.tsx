@@ -2,10 +2,11 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
-import { Providers } from "@/components/providers";
-import ErrorBoundary from "@/components/error-boundary";
-import { AuthRedirect } from "@/components/auth-redirect";
+import { Navbar } from "@/components/layout/navbar";
+import { Providers } from "@/components/layout/providers";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import ErrorBoundary from "@/components/layout/error-boundary";
+import { AuthRedirect } from "@/components/auth/auth-redirect";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,15 +22,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>
-          <ErrorBoundary>
-            <AuthRedirect />
-            <Navbar />
-            <main>{children}</main>
-          </ErrorBoundary>
-        </Providers>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Providers>
+            <ErrorBoundary>
+              <AuthRedirect />
+              <Navbar />
+              <main>{children}</main>
+            </ErrorBoundary>
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );

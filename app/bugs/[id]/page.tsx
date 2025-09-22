@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { BugDetails } from "@/components/bug-details";
+import { BugDetails } from "@/components/bugs/bug-details";
 import { BugDetailsSkeleton } from "@/components/ui/loading-skeletons";
 import { Suspense } from "react";
 

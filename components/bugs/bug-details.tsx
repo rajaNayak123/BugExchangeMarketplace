@@ -14,10 +14,10 @@ import { DiffViewer } from "@/components/ui/diff-viewer";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { IndianRupee, Code, AlertTriangle } from "lucide-react";
 import { submissionSchema } from "@/lib/validations";
-import { BugDetailsPaymentButton } from "@/components/bug-details-client";
+import { BugDetailsPaymentButton } from "./bug-details-client";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
-import { CommentSection } from "./comment-section";
+import { CommentSection } from "../common/comment-section";
 import { BugAssignment } from "./bug-assignment";
 import { BugLifecycle } from "./bug-lifecycle";
 import {

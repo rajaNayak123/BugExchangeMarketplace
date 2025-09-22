@@ -120,3 +120,138 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 
+  Custom Theme Support
+  These classes allow users to switch between different color schemes
+  Each theme has its own set of CSS variables for consistent styling
+*/
+
+/* Default Theme (already defined above) */
+[data-theme="default"] {
+  /* Uses the existing :root variables */
+}
+
+/* Ocean Theme - Blue color scheme */
+[data-theme="ocean"] {
+  --background: oklch(0.98 0.02 240);
+  --foreground: oklch(0.2 0.1 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.1 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.1 240);
+  --primary: oklch(0.4 0.15 240);
+  --primary-foreground: oklch(0.98 0.02 240);
+  --secondary: oklch(0.9 0.05 240);
+  --secondary-foreground: oklch(0.2 0.1 240);
+  --muted: oklch(0.9 0.05 240);
+  --muted-foreground: oklch(0.5 0.1 240);
+  --accent: oklch(0.6 0.2 200);
+  --accent-foreground: oklch(0.2 0.1 240);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.85 0.05 240);
+  --input: oklch(0.85 0.05 240);
+  --ring: oklch(0.4 0.15 240);
+}
+
+/* Forest Theme - Green color scheme */
+[data-theme="forest"] {
+  --background: oklch(0.98 0.02 140);
+  --foreground: oklch(0.2 0.1 140);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.1 140);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.1 140);
+  --primary: oklch(0.3 0.15 140);
+  --primary-foreground: oklch(0.98 0.02 140);
+  --secondary: oklch(0.9 0.05 140);
+  --secondary-foreground: oklch(0.2 0.1 140);
+  --muted: oklch(0.9 0.05 140);
+  --muted-foreground: oklch(0.5 0.1 140);
+  --accent: oklch(0.5 0.2 120);
+  --accent-foreground: oklch(0.2 0.1 140);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.85 0.05 140);
+  --input: oklch(0.85 0.05 140);
+  --ring: oklch(0.3 0.15 140);
+}
+
+/* Sunset Theme - Orange and purple color scheme */
+[data-theme="sunset"] {
+  --background: oklch(0.98 0.02 20);
+  --foreground: oklch(0.2 0.1 20);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.1 20);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.1 20);
+  --primary: oklch(0.4 0.2 20);
+  --primary-foreground: oklch(0.98 0.02 20);
+  --secondary: oklch(0.9 0.05 20);
+  --secondary-foreground: oklch(0.2 0.1 20);
+  --muted: oklch(0.9 0.05 20);
+  --muted-foreground: oklch(0.5 0.1 20);
+  --accent: oklch(0.6 0.25 300);
+  --accent-foreground: oklch(0.2 0.1 20);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.85 0.05 20);
+  --input: oklch(0.85 0.05 20);
+  --ring: oklch(0.4 0.2 20);
+}
+
+/* Midnight Theme - Dark purple color scheme */
+[data-theme="midnight"] {
+  --background: oklch(0.1 0.02 280);
+  --foreground: oklch(0.9 0.05 280);
+  --card: oklch(0.15 0.05 280);
+  --card-foreground: oklch(0.9 0.05 280);
+  --popover: oklch(0.15 0.05 280);
+  --popover-foreground: oklch(0.9 0.05 280);
+  --primary: oklch(0.7 0.2 280);
+  --primary-foreground: oklch(0.1 0.02 280);
+  --secondary: oklch(0.2 0.05 280);
+  --secondary-foreground: oklch(0.9 0.05 280);
+  --muted: oklch(0.2 0.05 280);
+  --muted-foreground: oklch(0.6 0.1 280);
+  --accent: oklch(0.5 0.3 260);
+  --accent-foreground: oklch(0.9 0.05 280);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.3 0.1 280);
+  --input: oklch(0.3 0.1 280);
+  --ring: oklch(0.7 0.2 280);
+}
+
+/* 
+  Smooth Theme Transitions
+  This ensures smooth color changes when switching themes
+*/
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* 
+  Reduced Motion Support
+  Respects user's motion preferences for accessibility
+*/
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* 
+  High Contrast Mode Support
+  Improves accessibility for users who need high contrast
+*/
+@media (prefers-contrast: high) {
+  :root {
+    --border: oklch(0 0 0);
+    --ring: oklch(0 0 0);
+  }
+
+  .dark {
+    --border: oklch(1 0 0);
+    --ring: oklch(1 0 0);
+  }
+}

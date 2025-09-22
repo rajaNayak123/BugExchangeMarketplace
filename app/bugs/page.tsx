@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import { BugList } from "@/components/bug-list";
-import { AdvancedSearch } from "@/components/advanced-search";
-import { RecentActivity } from "@/components/recent-activity";
+import { BugList } from "@/components/bugs/bug-list";
+import { AdvancedSearch } from "@/components/common/advanced-search";
+import { RecentActivity } from "@/components/features/recent-activity";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BugListSkeleton } from "@/components/ui/loading-skeletons";

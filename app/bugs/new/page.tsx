@@ -14,9 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import { CodeBlock } from "@/components/ui/code-block";
 import { X } from "lucide-react";
 import { bugSchema } from "@/lib/validations";
-import { BugCreationPaymentButton } from "@/components/bug-creation-client";
-import { BugTemplateSelector } from "@/components/bug-template-selector";
-import { DuplicateDetector } from "@/components/duplicate-detector";
+import { BugCreationPaymentButton } from "@/components/bugs/bug-creation-client";
+import { BugTemplateSelector } from "@/components/bugs/bug-template-selector";
+import { DuplicateDetector } from "@/components/bugs/duplicate-detector";
 import { toast } from "sonner";
 
 export default function NewBugPage() {
